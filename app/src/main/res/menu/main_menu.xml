@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.tp2.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/deconnexion"
         android:orderInCategory="1"
         android:title="@string/action_settings"
         app:showAsAction="never" />

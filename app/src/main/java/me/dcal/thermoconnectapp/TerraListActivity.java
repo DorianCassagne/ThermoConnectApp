@@ -1,16 +1,18 @@
 package me.dcal.thermoconnectapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+
+import me.dcal.thermoconnectapp.Services.API;
+import me.dcal.thermoconnectapp.Services.BodyConnexion;
 
 
 public class TerraListActivity extends AppCompatActivity {
@@ -22,7 +24,9 @@ public class TerraListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terra_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        BodyConnexion body=API.getBodyConnexion(getApplicationContext());
+        Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
+        toast.show();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -37,13 +41,18 @@ public class TerraListActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.deconnexion:
+                API.setBodyConnexion(getApplicationContext(),null);
+                Intent i=new Intent(this, LoginActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+        //noinspection SimplifiableIfStatement
 
-        return super.onOptionsItemSelected(item);
     }
 
 
