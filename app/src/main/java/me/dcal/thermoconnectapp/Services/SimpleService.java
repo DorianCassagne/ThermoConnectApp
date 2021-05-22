@@ -1,16 +1,16 @@
 package me.dcal.thermoconnectapp.Services;
 
-import kotlinx.coroutines.Deferred;
+import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 
 public interface SimpleService {
    @POST("connexion")
    public Call<Boolean> connexion(@Body BodyConnexion bodyConnexion);
+
+   @POST("ajoutTerrarium")
+   public Call<Integer> ajoutTerrarium(@Body BodyTerrarium bodyTerrarium);
    /*@Multipart
    @POST("")
    public Call<Object> test(@Part BodyConnexion bodyConnexion);*/

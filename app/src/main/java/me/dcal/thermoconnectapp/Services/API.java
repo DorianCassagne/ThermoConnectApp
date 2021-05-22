@@ -25,7 +25,7 @@ public class API {
     private API(){
         //TODO mettre en place la création des services
         moshi=new Moshi.Builder().addLast(new KotlinJsonAdapterFactory()).build();
-        retrofit = new Retrofit.Builder().baseUrl(urlBaseRetrofit).addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
+        retrofit = new Retrofit.Builder().baseUrl("http://devmobile.dcal.me/").addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
         simpleService=retrofit.create(SimpleService.class);
     }
     public static final void launchShortToast(Context context,String text){

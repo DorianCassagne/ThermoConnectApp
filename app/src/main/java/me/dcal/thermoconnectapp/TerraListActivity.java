@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -54,6 +55,8 @@ public class TerraListActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
 
     }
-
-
+    public void ajouterTerrarium(View v){
+        Intent i=new Intent(this, AddTerraActivity.class);
+        startActivity(i);
+    }
 }

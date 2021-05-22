@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
                            Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
                            toast.show();
                            if(true==i.booleanValue()){
-                               API.setBodyConnexion(getApplicationContext(),new BodyConnexion("test","test"));
+                               API.setBodyConnexion(getApplicationContext(),body);
                                Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
                                startActivity(intent);
                            }
