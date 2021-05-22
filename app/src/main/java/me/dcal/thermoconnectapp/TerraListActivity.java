@@ -49,6 +49,10 @@ public class TerraListActivity extends AppCompatActivity {
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 return true;
+            case R.id.add:
+                Intent a=new Intent(this, AddAnimalActivity.class);
+                startActivity(a);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
