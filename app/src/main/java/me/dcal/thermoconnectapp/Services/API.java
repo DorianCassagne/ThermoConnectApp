@@ -21,11 +21,12 @@ public class API {
     public Moshi moshi;
     //TODO set url
     private static  final String urlFilePreference="me.dcal.thermoconnectapp.preferenceLogin";
-    private static final String urlBaseRetrofit="http://thermoconnect.dcal.me/";
+    private static final String produrlBaseRetrofit="http://thermoconnect.dcal.me/";
+    private static final String urlBaseRetrofit="http://devmobile.dcal.me/";
     private API(){
         //TODO mettre en place la création des services
         moshi=new Moshi.Builder().addLast(new KotlinJsonAdapterFactory()).build();
-        retrofit = new Retrofit.Builder().baseUrl("http://devmobile.dcal.me/").addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
+        retrofit = new Retrofit.Builder().baseUrl(urlBaseRetrofit).addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
         simpleService=retrofit.create(SimpleService.class);
     }
     public static final void launchShortToast(Context context,String text){
@@ -63,8 +64,6 @@ public class API {
             editor.putString("password", body.password);
             editor.apply();
         }
-
-
     }
     public static final API getInstance(){
         return instance;

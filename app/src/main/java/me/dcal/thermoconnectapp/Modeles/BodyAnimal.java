@@ -1,5 +1,10 @@
 package me.dcal.thermoconnectapp.Modeles;
 
+import android.net.Uri;
+
+import java.util.HashMap;
+import java.util.List;
+
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 
 public class BodyAnimal {
@@ -7,19 +12,17 @@ public class BodyAnimal {
     public BodyConnexion bodyConnexion;
     public int idAnimal;
     public int terrarium;
-    public int species;
+    public String species;
     public String name;
     public boolean sexe;
     public String datenaissance;
     public String description;
     public String food;
-    public String image;
     public int weight;
 
 
-    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, int species, String name, boolean sexe, String datenaissance, String description, String food, String image, int weight) {
+    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, String species, String name, boolean sexe, String datenaissance, String description) {
         this.bodyConnexion = bodyConnexion;
-        this.idAnimal = idAnimal;
         this.terrarium = terrarium;
         this.species = species;
         this.name = name;
@@ -27,8 +30,6 @@ public class BodyAnimal {
         this.datenaissance = datenaissance;
         this.description = description;
         this.food = food;
-        this.image = image;
-        this.weight = weight;
     }
 
 
@@ -57,11 +58,11 @@ public class BodyAnimal {
         this.terrarium = terrarium;
     }
 
-    public int getSpecies() {
+    public String getSpecies() {
         return species;
     }
 
-    public void setSpecies(int species) {
+    public void setSpecies(String species) {
         this.species = species;
     }
 
@@ -103,14 +104,6 @@ public class BodyAnimal {
 
     public void setFood(String food) {
         this.food = food;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public int getWeight() {
