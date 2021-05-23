@@ -1,7 +1,6 @@
 package me.dcal.thermoconnectapp;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
@@ -14,14 +13,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-
-import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -34,33 +28,26 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.FileSystem;
+
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
+
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
-import me.dcal.thermoconnectapp.Modeles.BodyDocument;
 import me.dcal.thermoconnectapp.Modeles.BodySpecies;
-import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -68,7 +55,6 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Url;
 
 
 public class AddAnimalActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
@@ -152,14 +138,14 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         sexe = Boolean.FALSE;
 
                 }
-
+//((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
-                                ,0
+                                ,1
                                 ,speciesspinner.getSelectedItem().toString()
                                 ,name.getText().toString()
                                 ,sexe
-                                ,((TextView) findViewById(R.id.naissance)).getText().toString()
-                                ,commentaire.getText().toString());
+                                , ((TextView) findViewById(R.id.naissance)).getText().toString()
+                        ,commentaire.getText().toString());
 
                 List<MultipartBody.Part> part= uploadFile(UriTab);
                 Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);
@@ -215,8 +201,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
                 int i =0;
                 for (BodySpecies specie : response.body()){
-                    arraySpinner[i] = specie.getEspece();
-                    arraydescription.put(specie.getEspece(),specie.getDescription());
+                    arraySpinner[i] = specie.getSpecies();
+                    arraydescription.put(specie.getSpecies(),specie.getDescription());
                     i++;
                 }
                 speciesspinner = (Spinner) findViewById(R.id.spinner);

@@ -2,6 +2,8 @@ package me.dcal.thermoconnectapp.Modeles;
 
 import android.net.Uri;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class BodyAnimal {
     public String species;
     public String name;
     public boolean sexe;
-    public String datenaissance;
+    public String dateOfBirth;
     public String description;
     public String food;
     public int weight;
@@ -27,7 +29,7 @@ public class BodyAnimal {
         this.species = species;
         this.name = name;
         this.sexe = sexe;
-        this.datenaissance = datenaissance;
+        this.dateOfBirth = datenaissance;
         this.description = description;
         this.food = food;
     }
@@ -83,11 +85,11 @@ public class BodyAnimal {
     }
 
     public String getDatenaissance() {
-        return datenaissance;
+        return dateOfBirth;
     }
 
     public void setDatenaissance(String datenaissance) {
-        this.datenaissance = datenaissance;
+        this.dateOfBirth = datenaissance;
     }
 
     public String getDescription() {

@@ -2,20 +2,20 @@ package me.dcal.thermoconnectapp.Modeles;
 
 public class BodySpecies {
 
-    public String espece;
+    public String species;
     public String description;
 
-    public BodySpecies(String espece, String description) {
-        this.espece = espece;
+    public BodySpecies(String species, String description) {
+        this.species = species;
         this.description = description;
     }
 
-    public String getEspece() {
-        return espece;
+    public String getSpecies() {
+        return species;
     }
 
-    public void setEspece(String espece) {
-        this.espece = espece;
+    public void setSpecies(String species) {
+        this.species = species;
     }
 
     public String getDescription() {
