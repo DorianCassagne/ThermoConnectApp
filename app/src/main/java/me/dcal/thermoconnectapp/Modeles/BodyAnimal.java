@@ -16,7 +16,7 @@ public class BodyAnimal implements Serializable {
     public BodyConnexion bodyConnexion;
     public int idAnimal;
     public int terrarium;
-    public BodySpecies species;
+    public String species;
     public String name;
     public boolean sexe;
     public String dateOfBirth;
@@ -25,7 +25,7 @@ public class BodyAnimal implements Serializable {
     public int weight;
     public  List<String> documents =  new ArrayList<>();
 
-    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, BodySpecies species, String name, boolean sexe, String dateOfBirth, String description, String food, int weight, List<String> documents) {
+    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, String species, String name, boolean sexe, String dateOfBirth, String description, String food, int weight, List<String> documents) {
         this.bodyConnexion = bodyConnexion;
         this.idAnimal = idAnimal;
         this.terrarium = terrarium;
@@ -63,11 +63,11 @@ public class BodyAnimal implements Serializable {
         this.terrarium = terrarium;
     }
 
-    public BodySpecies getSpecies() {
+    public String getSpecies() {
         return species;
     }
 
-    public void setSpecies(BodySpecies species) {
+    public void setSpecies(String species) {
         this.species = species;
     }
 

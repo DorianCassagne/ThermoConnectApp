@@ -95,12 +95,12 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         pieChart = (LineChart) findViewById(R.id.barchart);
         newWeight = (TextView) findViewById(R.id.nouveaupoids);
         addedfiles = (ListView) findViewById(R.id.docview);
-        addedfiles.setOnClickListener(new View.OnClickListener() {
+        /*addedfiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 loadDocument(addedfiles.getSelectedItem().toString());
             }
-        });
+        });*/
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
@@ -118,7 +118,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         naissance.setText(this.bodyanimal.getDateOfBirth());
 
         //imgView.setImageBitmap(this.bodyanimal.get());
-        descriptionperso.setText(this.bodyanimal.getSpecies().getDescription());
+        //descriptionperso.setText(this.bodyanimal.getSpecies().getDescription());
 
         ArrayList NoOfEmp = new ArrayList();
         loadDocument(null);
