@@ -15,7 +15,8 @@ import retrofit2.http.Part;
 public interface SimpleService {
    @POST("connexion")
    public Call<Boolean> connexion(@Body BodyConnexion bodyConnexion);
-
+   @POST("createuser")
+   public Call<Boolean> createuser(@Body BodyConnexion bodyConnexion);
    @POST("ajoutTerrarium")
    public Call<Integer> ajoutTerrarium(@Body BodyTerrarium bodyTerrarium);
    /*@Multipart
