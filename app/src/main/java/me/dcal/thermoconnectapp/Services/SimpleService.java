@@ -30,4 +30,5 @@ public interface SimpleService {
            @Part List<MultipartBody.Part> file
    );
 
+    Call<List<BodyTerrarium>> listTerrarium(@Body BodyConnexion bodyConnexion);
 }
