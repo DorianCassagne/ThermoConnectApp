@@ -61,4 +61,30 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+    public void inscription(View view){
+        BodyConnexion body=new BodyConnexion(email.getText().toString(),password.getText().toString());
+        Call<Boolean> id =API.getInstance().simpleService.createuser(body);
+        id.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                Boolean i=response.body();
+                Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
+                toast.show();
+                if(true==i.booleanValue()){
+                    API.setBodyConnexion(getApplicationContext(),body);
+                    Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                call.request().url();
+                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });
+
+
+    }
 }
