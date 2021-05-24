@@ -20,7 +20,7 @@ public class BodyDocument {
     public int idanimal;
     public FileInputStream file;
 
-    public BodyDocument(int idanimal,String name,String path) throws FileNotFoundException {
+    public BodyDocument(int idanimal,String name) throws FileNotFoundException {
         this.name = name;
         this.idanimal = idanimal;
         //this.file = new Ma(path);
