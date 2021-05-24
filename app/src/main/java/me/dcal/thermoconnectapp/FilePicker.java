@@ -1,6 +1,8 @@
 package me.dcal.thermoconnectapp;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,28 +23,16 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
-public class FilePicker extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class FilePicker extends AppCompatActivity  {
     private static final int REQUEST_WRITE_PERMISSION = 786;
     List<Uri> UriTabDoc;
     Uri finalimage;
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_WRITE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            openFilePicker();//do your job
-        }
-    }
 
-    public void requestPermission(List<Uri> UriTabDoc, Uri finalimage) {
+
+
+    public void  openFilePicker(List<Uri> UriTabDoc, Uri finalimage){
+        this.UriTabDoc =UriTabDoc;
         this.finalimage = finalimage;
-        this.UriTabDoc = UriTabDoc;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ActivityCompat.requestPermissions( this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-        } else {
-            openFilePicker();//do your job
-        }
-    }
-
-    public void openFilePicker(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");

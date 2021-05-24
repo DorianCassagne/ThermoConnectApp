@@ -3,6 +3,7 @@ package me.dcal.thermoconnectapp.Modeles;
 import android.net.Uri;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,19 +22,21 @@ public class BodyAnimal {
     public String description;
     public String food;
     public int weight;
+    public List<String> documents = new ArrayList<>();
 
-
-    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, String species, String name, boolean sexe, String datenaissance, String description) {
+    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, String species, String name, boolean sexe, String dateOfBirth, String description, String food, int weight, List<String> documents) {
         this.bodyConnexion = bodyConnexion;
+        this.idAnimal = idAnimal;
         this.terrarium = terrarium;
         this.species = species;
         this.name = name;
         this.sexe = sexe;
-        this.dateOfBirth = datenaissance;
+        this.dateOfBirth = dateOfBirth;
         this.description = description;
         this.food = food;
+        this.weight = weight;
+        this.documents = documents;
     }
-
 
     public BodyConnexion getBodyConnexion() {
         return bodyConnexion;
@@ -42,7 +45,6 @@ public class BodyAnimal {
     public void setBodyConnexion(BodyConnexion bodyConnexion) {
         this.bodyConnexion = bodyConnexion;
     }
-
 
     public int getIdAnimal() {
         return idAnimal;
@@ -84,12 +86,12 @@ public class BodyAnimal {
         this.sexe = sexe;
     }
 
-    public String getDatenaissance() {
+    public String getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDatenaissance(String datenaissance) {
-        this.dateOfBirth = datenaissance;
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getDescription() {
@@ -116,5 +118,11 @@ public class BodyAnimal {
         this.weight = weight;
     }
 
+    public List<String> getDocuments() {
+        return documents;
+    }
 
+    public void setDocuments(List<String> documents) {
+        this.documents = documents;
+    }
 }
