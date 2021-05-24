@@ -8,12 +8,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.List;
+
+import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class TerraListActivity extends AppCompatActivity {
@@ -28,7 +37,34 @@ public class TerraListActivity extends AppCompatActivity {
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
+        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
+        ListView terraList = (ListView)findViewById(R.id.TerraList);
+        ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
+
+        terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
+                Intent intent = new Intent(getBaseContext(), TerrariumActivity.class);
+                intent.putExtra("idTerrarium", bt.getIdTerrarium());
+                startActivity(intent);
+            }
+        });
+        list.enqueue(new Callback<List<BodyTerrarium>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
+                for(BodyTerrarium bt : response.body())
+                    arrayAdapter.add(bt);
+                terraList.setAdapter(arrayAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

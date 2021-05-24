@@ -1,7 +1,6 @@
 package me.dcal.thermoconnectapp.Modeles;
 
 import java.sql.Time;
-
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 
 public class BodyTerrarium {
@@ -96,5 +95,10 @@ public class BodyTerrarium {
 
     public void setIdTerrarium(Integer idTerrarium) {
         this.idTerrarium = idTerrarium;
+    }
+
+    @Override
+    public String toString() {
+        return this.nameTerrarium;
     }
 }
