@@ -12,8 +12,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.List;
+
+import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class TerraListActivity extends AppCompatActivity {
@@ -21,6 +27,20 @@ public class TerraListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
+        list.enqueue(new Callback<List<BodyTerrarium>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
+                for(BodyTerrarium bt : response.body()){
+                    System.out.println("OK");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terra_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
