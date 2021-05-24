@@ -45,7 +45,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,6 +60,11 @@ import me.dcal.thermoconnectapp.Modeles.BodyDocument;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class AnimalActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
@@ -78,7 +87,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         ArrayList NoOfEmp = new ArrayList();
-
+        loadDocument();
 
         NoOfEmp.add(new Entry(945f, 450));
         NoOfEmp.add(new Entry(1040f, 510));
@@ -105,6 +114,41 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 requestPermission();
                 //API.getInstance().filepicker.requestPermission(AnimalActivity.this, UriTabDoc, finalimage);
             }
+        });
+    }
+
+    public void loadDocument(){
+        Call<ResponseBody> reponse= API.getInstance().simpleService.getFile(API.getBodyConnexion(getApplicationContext()));
+        reponse.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                toast.show();
+                try {
+
+                    File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File file = new File(path, "magrossebite.png");
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    byte[] data = response.body().bytes();
+                    IOUtils.write(data, fileOutputStream);
+                }
+                catch (Exception ex){
+                    Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                call.request().url();
+                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+
+
+
+
         });
     }
 
@@ -163,8 +207,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 addedfiles.setAdapter(arrayAdapter);
                 UriTabDoc.add(fileuri);
                 //
-
-
 
             }else {// for image selection
                 try {

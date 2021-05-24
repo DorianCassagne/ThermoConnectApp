@@ -27,6 +27,8 @@ public interface SimpleService {
    @POST("getSpecies")
    public Call<List<BodySpecies>> getspecies(@Body BodyConnexion bodyConnexion);
 
+   @POST("getFile")
+   public Call<ResponseBody> getFile(@Body BodyConnexion bodyConnexion);
 
    @Multipart
    @POST("ajoutAnimal")

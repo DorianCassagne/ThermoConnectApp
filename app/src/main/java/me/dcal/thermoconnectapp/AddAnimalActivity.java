@@ -129,7 +129,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 UriTabImage.add(finalimage);
                 UriTab.put("files", UriTabDoc);
                 UriTab.put("picture", UriTabImage);
-
+                List<String> documents = new ArrayList<>();
                 Boolean sexe = Boolean.TRUE;
                 switch (sexspinner.getSelectedItem().toString()) {
                     case "Male":
@@ -138,6 +138,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         sexe = Boolean.FALSE;
 
                 }
+
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
                                 ,1
@@ -145,7 +146,10 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                                 ,name.getText().toString()
                                 ,sexe
                                 , ((TextView) findViewById(R.id.naissance)).getText().toString()
-                        ,commentaire.getText().toString());
+                        ,commentaire.getText().toString()
+                        ,null
+                        ,0
+                , documents);
 
                 List<MultipartBody.Part> part= uploadFile(UriTab);
                 Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);

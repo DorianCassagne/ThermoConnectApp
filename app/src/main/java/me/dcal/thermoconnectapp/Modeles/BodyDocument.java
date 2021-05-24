@@ -23,7 +23,7 @@ public class BodyDocument {
     public BodyDocument(int idanimal,String name) throws FileNotFoundException {
         this.name = name;
         this.idanimal = idanimal;
-        //this.file = new Ma(path);
+
     }
 
     public String getName() {
