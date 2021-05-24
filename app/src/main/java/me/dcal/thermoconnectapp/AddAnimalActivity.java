@@ -1,5 +1,6 @@
 package me.dcal.thermoconnectapp;
 
+import android.app.DatePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
@@ -16,31 +17,37 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 
-import org.apache.commons.io.FileUtils;
-
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.FileSystem;
+
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
-import me.dcal.thermoconnectapp.Modeles.BodyDocument;
+import me.dcal.thermoconnectapp.Modeles.BodySpecies;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -48,18 +55,55 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Url;
 
 
 public class AddAnimalActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
     private static int RESULT_LOAD_IMAGE = 1;
     private static final int REQUEST_WRITE_PERMISSION = 786;
+    private HashMap<String, List<Uri>> UriTab = new HashMap<>();
+    private List<Uri> UriTabDoc = new ArrayList<>();
+    private List<Uri> UriTabImage = new ArrayList<>();
+    private TextView naissance;
+    private TextView poids;
+    private Uri finalimage;
+    Spinner speciesspinner;
+    Spinner sexspinner;
+    TextView autodescrip;
+    TextView commentaire;
+    HashMap<String, String> arraydescription = new HashMap<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
         setContentView(R.layout.activity_add_animal);
+        setSpecies();
+        setSexe();
+
+        ImageView img = (ImageView) findViewById(R.id.imgView);
+        TextView name = (TextView) findViewById(R.id.name);
+        autodescrip = (TextView) findViewById(R.id.descriptionauto) ;
+        commentaire = (TextView) findViewById(R.id.commentaire) ;
+        naissance = (TextView) findViewById(R.id.naissance);
+        speciesspinner = (Spinner) findViewById(R.id.spinner);
+        speciesspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // your code here
+                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem().toString()));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
+        poids = (TextView) findViewById(R.id.poids);
+        naissance = (TextView) findViewById(R.id.naissance);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/YYYY");
+        naissance.append(formatter.format(new Date()));
         Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,9 +122,124 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             }
         });
 
+        Button buttoncreate = (Button) findViewById(R.id.createanimal);
+        buttoncreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                UriTabImage.add(finalimage);
+                UriTab.put("files", UriTabDoc);
+                UriTab.put("picture", UriTabImage);
+
+                Boolean sexe = Boolean.TRUE;
+                switch (sexspinner.getSelectedItem().toString()) {
+                    case "Male":
+                        sexe = Boolean.TRUE;
+                    case "Femelle":
+                        sexe = Boolean.FALSE;
+
+                }
+//((TextView) findViewById(R.id.naissance)).getText().toString()
+                BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
+                                ,1
+                                ,speciesspinner.getSelectedItem().toString()
+                                ,name.getText().toString()
+                                ,sexe
+                                , ((TextView) findViewById(R.id.naissance)).getText().toString()
+                        ,commentaire.getText().toString());
+
+                List<MultipartBody.Part> part= uploadFile(UriTab);
+                Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);
+                reponse.enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                        Integer i=response.body();
+                        Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable t) {
+                        call.request().url();
+                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
+
+
+
+            }
+        });
+        }
+
+        public void changedate(View v){
+            API.launchShortToast(getApplicationContext(),"onClick");
+            int mYear, mMonth, mDay, mHour, mMinute;
+            final Calendar c = Calendar.getInstance();
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                    new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            String date = dayOfMonth + "/" + month + "/" + year;
+                            naissance.setText(date);
+                        }
+                    }, mYear, mMonth, mDay);
+            datePickerDialog.show();
+        }
+
+    public void setSpecies(){
+
+        Response<List<BodySpecies>> toto;
+        Call<List<BodySpecies>> species=  API.getInstance().simpleService.getspecies(API.getBodyConnexion(getApplicationContext()));
+        species.enqueue(new Callback<List<BodySpecies>>() {
+            @Override
+            public void onResponse(Call<List<BodySpecies>> call, Response<List<BodySpecies>> response) {
+                String[] arraySpinner = new String[response.body().size()];
+
+                int i =0;
+                for (BodySpecies specie : response.body()){
+                    arraySpinner[i] = specie.getSpecies();
+                    arraydescription.put(specie.getSpecies(),specie.getDescription());
+                    i++;
+                }
+                speciesspinner = (Spinner) findViewById(R.id.spinner);
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddAnimalActivity.this,
+                        android.R.layout.simple_spinner_item, arraySpinner);
+// Specify the layout to use when the list of choices appears
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+                speciesspinner.setAdapter(adapter);
+
+                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+            @Override
+            public void onFailure(Call<List<BodySpecies>> call, Throwable t) {
+                Toast toast = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+        });
 
     }
 
+    public void setSexe(){String[] arraySpinner = new String[] {
+            "Male", "Femelle", "NC"
+    };
+        sexspinner = (Spinner) findViewById(R.id.sexspinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpinner);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        sexspinner.setAdapter(adapter);
+
+    }
     public void openFilePicker(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -97,8 +256,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         if (resultCode == RESULT_OK) {
             if (requestCode == 7) { // for file selection
 //                try {
-                    final Uri fileuri = data.getData();
-
+                    Uri fileuri = data.getData();
 
                     //final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                     //final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
@@ -107,25 +265,19 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                     TextView tv1 = new TextView(this.getApplicationContext());
                     tv1.append(name);
                     addedfiles.addView(tv1);
+                    UriTabDoc.add(fileuri);
+                    //
 
-                    uploadFile(fileuri);
 
 
-                //BodyAnimal body = new BodyAnimal(API.getBodyConnexion(getApplicationContext()), 0, "pyhton curtus")
-                    //image_view.setImageBitmap(selectedImage);
-
-               /* } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
-                }*/
             }else {// for image selection
                 try {
-                    final Uri imageUri = data.getData();
-                    final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                    final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                    Uri imageUri = data.getData();
+                    InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                    Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                     ImageView image_view = (ImageView) findViewById(R.id.imgView);
                     image_view.setImageBitmap(selectedImage);
-
+                    finalimage = imageUri;
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
@@ -152,40 +304,44 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             openFilePicker();//do your job
         }
     }
-    private void uploadFile( Uri fileUri) {
+    private List<MultipartBody.Part> uploadFile( HashMap<String, List<Uri>> filesUri) {
 
         // https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java
         // use the FileUtils to get the actual file by uri
-
-
-        File file = new File(getPath(getApplicationContext(), fileUri));
-
-        // create RequestBody instance from file
-        RequestBody requestFile =
-                RequestBody.create(
-                        MediaType.parse(getContentResolver().getType(fileUri)),
-                        file
-                );
-
-        // MultipartBody.Part is used to send also the actual file name
-        MultipartBody.Part body =
-                MultipartBody.Part.createFormData("files", file.getName(), requestFile);
-
-        MultipartBody.Part body2 =
-                MultipartBody.Part.createFormData("files", file.getName(), requestFile);
-
         List<MultipartBody.Part> parts = new ArrayList<>();
-        parts.add(body);
-        parts.add(body2);
+
+        for (Map.Entry<String, List<Uri>> entry : filesUri.entrySet())
+        {
+            String key = entry.getKey();
+            List<Uri> value = entry.getValue();
+
+            for (Uri fileuri : value){
+                File file = new File(getPath(getApplicationContext(), fileuri));
+
+                // create RequestBody instance from file
+                RequestBody requestFile =
+                        RequestBody.create(
+                                MediaType.parse(getContentResolver().getType(fileuri)),
+                                file
+                        );
+
+                // MultipartBody.Part is used to send also the actual file name
+                MultipartBody.Part body =
+                        MultipartBody.Part.createFormData(key, file.getName(), requestFile);
+
+                parts.add(body);
+            }
+        }
+
 
         // add another part within the multipart request
 
         RequestBody description =
                 RequestBody.create(
                         okhttp3.MultipartBody.FORM, API.getBodyConnexion(getApplicationContext()).toString());
-
+        return parts;
         // finally, execute the request
-        Call<Integer> call = API.getInstance().simpleService.upload(API.getBodyConnexion(getApplicationContext()), parts);
+        /*Call<Integer> call = API.getInstance().simpleService.upload(API.getBodyConnexion(getApplicationContext()), parts);
         call.enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
@@ -197,7 +353,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                API.launchShortToast(getApplicationContext(), "KO");
             }
 
-        });
+        });*/
     }
     public String getFileName(Uri uri) {
         String result = null;

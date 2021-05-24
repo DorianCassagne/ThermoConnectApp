@@ -29,4 +29,5 @@
 
     <string name="action_settings">Deconnexion</string>
     <string name="action_add">Add</string>
+    <string name="action_animal">animal</string>
 </resources>
