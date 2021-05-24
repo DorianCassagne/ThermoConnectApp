@@ -11,7 +11,7 @@ import java.util.List;
 
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 
-public class BodyAnimal {
+public class BodyAnimal implements Serializable {
 
     public BodyConnexion bodyConnexion;
     public int idAnimal;
@@ -125,5 +125,10 @@ public class BodyAnimal {
 
     public void setDocuments(List<String> documents) {
         this.documents = documents;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }
