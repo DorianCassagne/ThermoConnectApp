@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -27,20 +29,6 @@ public class TerraListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
-        list.enqueue(new Callback<List<BodyTerrarium>>() {
-            @Override
-            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
-                for(BodyTerrarium bt : response.body()){
-                    System.out.println("OK");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terra_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -48,6 +36,22 @@ public class TerraListActivity extends AppCompatActivity {
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
+        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
+        ListView terraList = (ListView)findViewById(R.id.TerraList);
+        ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
+        list.enqueue(new Callback<List<BodyTerrarium>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
+                for(BodyTerrarium bt : response.body())
+                    arrayAdapter.add(bt);
+                terraList.setAdapter(arrayAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
