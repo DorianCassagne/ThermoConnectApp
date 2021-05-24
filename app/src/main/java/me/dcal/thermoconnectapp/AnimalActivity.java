@@ -1,6 +1,12 @@
 package me.dcal.thermoconnectapp;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -17,29 +23,38 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class AnimalActivity extends AppCompatActivity {
 
-
+    LineChart pieChart;
+    TextView newWeight;
+    List<Uri> UriTabDoc;
+    Uri finalimage;
+    private static final int REQUEST_WRITE_PERMISSION = 786;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_animal);
-
-
-        /*LineChart pieChart = (LineChart) findViewById(R.id.barchart);
+        pieChart = (LineChart) findViewById(R.id.barchart);
+        newWeight = (TextView) findViewById(R.id.nouveaupoids);
         ArrayList NoOfEmp = new ArrayList();
 
 
@@ -53,24 +68,27 @@ public class AnimalActivity extends AppCompatActivity {
 
         LineDataSet dataSet = new LineDataSet(NoOfEmp, "Evolution du poids");
 
-        ArrayList year = new ArrayList();
-
-        year.add("2008");
-        year.add("2009");
-        year.add("2010");
-        year.add("2011");
-        year.add("2012");
-        year.add("2013");
-        year.add("2014");
-        year.add("2015");
-        year.add("2016");
-        year.add("2017");
         LineData data = new LineData(dataSet);
 
         pieChart.setData(data);
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        pieChart.animateXY(5000, 5000);*/
+        pieChart.animateXY(5000, 5000);
+
+
+        Button buttonLoadFile = (Button) findViewById(R.id.addfiles);
+        buttonLoadFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                FilePicker Fp = new FilePicker();
+                Fp.requestPermission(UriTabDoc, finalimage);
+            }
+        });
+    }
+
+    public void addWeight(View v){
 
     }
+
+
 
 }

@@ -6,9 +6,10 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-   <!-- <LinearLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:isScrollContainer="true"
         android:orientation="vertical">
 
         <LinearLayout
@@ -85,10 +86,77 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/barchart"
                 android:layout_width="match_parent"
-                android:layout_height="300dp" />
+                android:layout_height="300dp">
+
+            </com.github.mikephil.charting.charts.LineChart>
         </LinearLayout>
 
-    </LinearLayout>-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/nouveaupoids"
+                android:layout_width="195dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:ems="10"
+                android:inputType="date" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="addWeight"
+                android:text="Ajout poids" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/Suivi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suivi alimentaire" />
+
+            <EditText
+                android:id="@+id/suivialimentaire"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ListView
+                    android:id="@+id/docview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </ListView>
+
+                <Button
+                    android:id="@+id/addfiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="addfiles"
+                    android:text="Ajout document" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
