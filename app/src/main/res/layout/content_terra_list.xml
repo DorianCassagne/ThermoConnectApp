@@ -14,8 +14,8 @@
 
         <ListView
             android:id="@+id/TerraList"
-            android:layout_width="409dp"
-            android:layout_height="729dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="1dp" />
     </LinearLayout>
