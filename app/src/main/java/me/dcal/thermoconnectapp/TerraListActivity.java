@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -39,6 +40,16 @@ public class TerraListActivity extends AppCompatActivity {
         Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
         ListView terraList = (ListView)findViewById(R.id.TerraList);
         ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
+
+        terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
+                Intent intent = new Intent(getBaseContext(), TerrariumActivity.class);
+                intent.putExtra("idTerrarium", bt.getIdTerrarium());
+                startActivity(intent);
+            }
+        });
         list.enqueue(new Callback<List<BodyTerrarium>>() {
             @Override
             public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
@@ -53,6 +64,7 @@ public class TerraListActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
