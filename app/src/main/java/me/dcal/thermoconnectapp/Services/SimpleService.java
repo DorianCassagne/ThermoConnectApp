@@ -46,6 +46,10 @@ public interface SimpleService {
            @Part("description") BodyConnexion description,
            @Part List<MultipartBody.Part> file
    );
+
    @POST("listTerrarium")
     Call<List<BodyTerrarium>> listTerrarium(@Body BodyConnexion bodyConnexion);
+
+   @POST("listAnimal")
+   Call<List<BodyAnimal>> listAnimal(@Body BodyTerrarium bodyTerrarium);
 }

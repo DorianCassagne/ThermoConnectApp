@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.Serializable;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
@@ -45,8 +47,8 @@ public class TerraListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getBaseContext(), TerrariumActivity.class);
-                intent.putExtra("idTerrarium", bt.getIdTerrarium());
+                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
+                intent.putExtra("Terrarium", bt);
                 startActivity(intent);
             }
         });
@@ -115,9 +117,17 @@ public class TerraListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getBaseContext(), TerrariumActivity.class);
-                intent.putExtra("idTerrarium", bt.getIdTerrarium());
+                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
+                intent.putExtra("Terrarium", bt);
                 startActivity(intent);
+            }
+        });
+
+        terraList.setOnDragListener(new AdapterView.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                System.out.println("TestDrag");
+                return true;
             }
         });
         list.enqueue(new Callback<List<BodyTerrarium>>() {
