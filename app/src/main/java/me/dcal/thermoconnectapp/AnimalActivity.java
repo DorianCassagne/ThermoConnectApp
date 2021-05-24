@@ -46,6 +46,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
@@ -77,6 +79,15 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
     private static final int REQUEST_WRITE_PERMISSION = 786;
+    BodyAnimal bodyanimal;
+
+    TextView name;
+    TextView sexe;
+    TextView descriptionauto;
+    TextView naissance;
+    ImageView imgView;
+    TextView descriptionperso;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,11 +95,34 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         pieChart = (LineChart) findViewById(R.id.barchart);
         newWeight = (TextView) findViewById(R.id.nouveaupoids);
         addedfiles = (ListView) findViewById(R.id.docview);
-       arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        addedfiles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                loadDocument(addedfiles.getSelectedItem().toString());
+            }
+        });
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+        this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
+
+        name = (TextView) findViewById(R.id.name);
+        sexe = (TextView) findViewById(R.id.sexe);
+        descriptionauto = (TextView) findViewById(R.id.descriptionauto);
+        naissance = (TextView) findViewById(R.id.naissance);
+        imgView = (ImageView) findViewById(R.id.imgView);
+        descriptionperso = (TextView) findViewById(R.id.descriptionperso);
+
+        name.setText(this.bodyanimal.getName());
+        sexe.setText(this.bodyanimal.getName());
+        descriptionauto.setText(this.bodyanimal.getDescription());
+        naissance.setText(this.bodyanimal.getDateOfBirth());
+
+        //imgView.setImageBitmap(this.bodyanimal.get());
+        descriptionperso.setText(this.bodyanimal.getSpecies().getDescription());
 
         ArrayList NoOfEmp = new ArrayList();
-        loadDocument();
-
+        loadDocument(null);
+        doclist(this.bodyanimal.getDocuments());
         NoOfEmp.add(new Entry(945f, 450));
         NoOfEmp.add(new Entry(1040f, 510));
         NoOfEmp.add(new Entry(1133f, 520));
@@ -117,7 +151,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         });
     }
 
-    public void loadDocument(){
+    public void loadDocument(String docname){
         Call<ResponseBody> reponse= API.getInstance().simpleService.getFile(API.getBodyConnexion(getApplicationContext()));
         reponse.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -127,7 +161,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 try {
 
                     File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    File file = new File(path, "magrossebite.png");
+                    File file = new File(path, docname + ".png");
                     FileOutputStream fileOutputStream = new FileOutputStream(file);
                     byte[] data = response.body().bytes();
                     IOUtils.write(data, fileOutputStream);
@@ -156,7 +190,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
     }
 
+    public void doclist(List<String> listdocs){
+        for (String doc : listdocs){
+            arrayAdapter.add(doc);
+            addedfiles.setAdapter(arrayAdapter);
+        }
 
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_WRITE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
