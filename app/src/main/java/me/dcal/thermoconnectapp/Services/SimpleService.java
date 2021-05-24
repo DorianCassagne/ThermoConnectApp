@@ -23,7 +23,6 @@ public interface SimpleService {
    @POST("ajoutTerrarium")
    public Call<Integer> ajoutTerrarium(@Body BodyTerrarium bodyTerrarium);
 
-
    @POST("getSpecies")
    public Call<List<BodySpecies>> getspecies(@Body BodyConnexion bodyConnexion);
 

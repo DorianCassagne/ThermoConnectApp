@@ -164,11 +164,11 @@ public class AddTerraActivity extends AppCompatActivity {
                     Integer i=response.body();
                     Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
                     toast.show();
-                    /*if(true==i.booleanValue()){
-                        API.setBodyConnexion(getApplicationContext(),body);
-                        Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
-                        startActivity(intent);
-                    }*/
+                   // if(true==i.booleanValue()){
+                    //API.setBodyConnexion(getApplicationContext(),body);
+                    //Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
+                    finish();
+                  //  }
                 }
 
                 @Override
