@@ -40,6 +40,10 @@
             android:name=".TerraListActivity"
             android:label="@string/title_activity_terra_list"
             android:theme="@style/Theme.ThermoConnectApp.NoActionBar" />
+        <activity
+            android:name=".FileActivity"
+            android:label="@string/title_activity_terra_list"
+            android:theme="@style/Theme.ThermoConnectApp.NoActionBar" />
     </application>
 
 </manifest>

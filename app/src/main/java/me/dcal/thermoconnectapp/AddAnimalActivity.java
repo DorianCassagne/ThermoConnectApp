@@ -90,7 +90,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem().toString()));
+                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem()));
             }
 
             @Override
@@ -142,7 +142,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
                                 ,1
-                                , speciesspinner.getSelectedItem().toString()
+                                , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
                                 ,sexe
                                 , ((TextView) findViewById(R.id.naissance)).getText().toString()
