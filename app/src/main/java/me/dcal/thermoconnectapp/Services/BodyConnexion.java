@@ -1,6 +1,8 @@
 package me.dcal.thermoconnectapp.Services;
 
-public class BodyConnexion {
+import java.io.Serializable;
+
+public class BodyConnexion implements Serializable {
     public String login;
     public String password;
 
