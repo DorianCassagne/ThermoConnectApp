@@ -13,14 +13,14 @@ public class BodyAnimal implements Serializable {
     public int terrarium;
     public BodySpecies species;
     public String name;
-    public boolean sexe;
+    public Boolean sexe;
     public String dateOfBirth;
     public String description;
     public String food;
     public int weight;
     public  List<String> documents =  new ArrayList<>();
 
-    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, BodySpecies species, String name, boolean sexe, String dateOfBirth, String description, String food, int weight, List<String> documents) {
+    public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, BodySpecies species, String name, Boolean sexe, String dateOfBirth, String description, String food, int weight, List<String> documents) {
         this.bodyConnexion = bodyConnexion;
         this.idAnimal = idAnimal;
         this.terrarium = terrarium;

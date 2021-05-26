@@ -71,6 +71,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
     TextView autodescrip;
     TextView commentaire;
     HashMap<String, String> arraydescription = new HashMap<>();
+    Boolean type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,16 +109,16 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Intent i = new Intent(
-                        Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                type = true;
+                requestPermission();
+
             }
         });
         Button buttonLoadFile = (Button) findViewById(R.id.buttonLoadFile);
         buttonLoadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                type = false;
                 requestPermission();
             }
         });
@@ -245,14 +246,27 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
     }
     public void openFilePicker(){
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        try{
-            startActivityForResult(intent, 7);
-        } catch (ActivityNotFoundException e){
-            Toast.makeText(AddAnimalActivity.this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
+
+        if (type){
+            Intent i = new Intent(
+                    Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            );
+
+            startActivityForResult(i, RESULT_LOAD_IMAGE);
+        }else{
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            try{
+                startActivityForResult(intent, 7);
+            } catch (ActivityNotFoundException e){
+                Toast.makeText(AddAnimalActivity.this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
+            }
         }
+
+
+
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -303,6 +317,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
     private void requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
             requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
         } else {
             openFilePicker();//do your job
