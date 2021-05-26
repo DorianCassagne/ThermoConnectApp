@@ -12,7 +12,8 @@
         android:fillViewport="true">
 
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
+            android:onClick="updateInfoVue"
             android:id="@+id/screen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -30,14 +31,17 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Terrarium"
+                    android:textSize="30dp"
                     android:onClick="ChangerTitre"/>
 
                 <EditText
                     android:id="@+id/TitleTerrariumEdit"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Terrarium"/>
+                    android:textSize="30dp"
+                    android:text="Terrarium"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
@@ -67,7 +71,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -79,20 +85,23 @@
                     android:id="@+id/TemperatureChaudTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="temperature" />
+                    android:text="temperature"
+                    android:onClick="modiftemperaturemax"/>
 
-                <EditText
+                <NumberPicker
                     android:id="@+id/TemperatureChaudTerrariumEdit"
-                    android:layout_width="0mm"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -104,20 +113,23 @@
                     android:id="@+id/TemperatureFroidTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="temperature" />
+                    android:text="temperature"
+                    android:onClick="modiftemperaturemin"/>
 
-                <EditText
+                <NumberPicker
                     android:id="@+id/TemperatureFroidTerrariumEdit"
-                    android:layout_width="0mm"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -129,20 +141,22 @@
                     android:id="@+id/HumiditéTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Humidité" />
+                    android:text="Humidité"
+                    android:onClick="modifhumidite"/>
 
-                <EditText
+                <NumberPicker
                     android:id="@+id/HumiditéTerrariumEdit"
-                    android:layout_width="0mm"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Eclairage:" />
+                android:text="Eclairage:"
+                android:layout_margin="5dp"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -175,6 +189,6 @@
                 android:layout_gravity="center"
                 android:visibility="invisible"/>
 
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

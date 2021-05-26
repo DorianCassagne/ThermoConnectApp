@@ -55,4 +55,7 @@ public interface SimpleService {
 
    @POST("listAnimal")
    Call<List<BodyAnimal>> listAnimal(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("modifTerrarium")
+   Call<Integer> modifTerrarium(@Body BodyTerrarium bodyTerrarium);
 }
