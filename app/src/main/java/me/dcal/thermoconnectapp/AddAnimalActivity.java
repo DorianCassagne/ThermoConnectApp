@@ -131,13 +131,13 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 UriTab.put("files", UriTabDoc);
                 UriTab.put("picture", UriTabImage);
                 List<String> documents = new ArrayList<>();
-                boolean sex = true;
-                switch (sexspinner.getSelectedItem().toString()) {
-                    case "Male":
-                        sex = true;
-                    case "Femelle":
-                        sex = false;
-
+                Boolean sex = true;
+                if (sexspinner.getSelectedItem().toString().equals("Male")){
+                    sex = true;
+                }else if (sexspinner.getSelectedItem().toString().equals("Male")){
+                    sex = false;
+                }else{
+                    sex = null;
                 }
 
 //((TextView) findViewById(R.id.naissance)).getText().toString()
