@@ -2,11 +2,18 @@ package me.dcal.thermoconnectapp.Services;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.squareup.moshi.JsonAdapter;
 
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
 
+import me.dcal.thermoconnectapp.R;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
@@ -18,6 +25,7 @@ public class API {
     public Moshi moshi;
     //TODO set url
     private static  final String urlFilePreference="me.dcal.thermoconnectapp.preferenceLogin";
+    private static final String urlImageLogin="http://devmobile.dcal.me/pic";
     private static final String produrlBaseRetrofit="http://thermoconnect.dcal.me/";
     private static final String urlBaseRetrofit="http://devmobile.dcal.me/";
     private API(){
@@ -61,6 +69,10 @@ public class API {
             editor.putString("password", body.password);
             editor.apply();
         }
+    }
+    public static final void getImageLogin(ImageView imageView){
+        Uri uri=Uri.parse(urlImageLogin+"?id="+Math.random()*1000000);
+        Glide.with(imageView).load(uri).apply(new RequestOptions().placeholder(R.drawable.loading).error(R.drawable.errorconnexion)).into(imageView);
     }
     public static final API getInstance(){
         return instance;
