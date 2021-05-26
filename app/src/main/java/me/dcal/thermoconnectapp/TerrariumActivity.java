@@ -59,7 +59,6 @@ public class TerrariumActivity extends AppCompatActivity {
         heureMinTerrarium = (TextView)findViewById(R.id.HeureMinTerrarium);
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
         TitleTerrariumEdit = (EditText)findViewById(R.id.TitleTerrariumEdit);
-        globalLayout = (LinearLayout)findViewById(R.id.screen);
         save_button = (Button)findViewById(R.id.save_button);
         TitleTerrariumEdit.setText(bt.nameTerrarium);
         if(!TitleTerrariumEdit.hasFocus())
@@ -197,7 +196,7 @@ public class TerrariumActivity extends AppCompatActivity {
         });
     }
 
-    private void ChangerTitre(){
+    public void ChangerTitre(View v){
         TitleTerrarium.setWidth(0);
         TitleTerrarium.setHeight(0);
         TitleTerrariumEdit.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
