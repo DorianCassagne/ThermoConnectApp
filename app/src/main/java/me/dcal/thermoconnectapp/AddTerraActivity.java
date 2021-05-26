@@ -198,6 +198,7 @@ public class AddTerraActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Integer> call, Response<Integer> response) {
                     Integer i=response.body();
+
                     if(i==null){
                         afficheErreur("Une erreur est survenu, veuillez reessayer plus tard");
                         API.launchShortToast(getApplicationContext(),"Une erreur est survenu, veuillez reessayer plus tard");
@@ -211,9 +212,9 @@ public class AddTerraActivity extends AppCompatActivity {
                         API.launchShortToast(getApplicationContext(),"Le formulaire contient des erreurs, ou un terrarium avec ce nom existe déjà");
                     }
                     else{
-                        Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
-                        startActivity(intent);
+                        finish();
                     }
+
 
                 }
 

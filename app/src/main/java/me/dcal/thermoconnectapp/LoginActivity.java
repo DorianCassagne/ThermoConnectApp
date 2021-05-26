@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         errorDisplay=findViewById(R.id.erreurLogin);
         image=findViewById(R.id.imageView);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Page de connexion Thermoconnect");
+        actionBar.setTitle("Page de connexion");
         bindImage();
         setOnChangeEvent(email);
         setOnChangeEvent(password);
