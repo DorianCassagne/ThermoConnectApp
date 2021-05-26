@@ -160,6 +160,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         Integer i=response.body();
                         Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
                         toast.show();
+                        finish();
                     }
 
                     @Override
