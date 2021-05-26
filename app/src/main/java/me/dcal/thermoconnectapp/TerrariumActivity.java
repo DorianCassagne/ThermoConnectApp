@@ -372,5 +372,23 @@ public class TerrariumActivity extends AppCompatActivity {
 
     }
 
+    //Suppression du terrarium
+    public void deleteTerrarium(View v){
+        updateInfoVue(v);
+        Call<Integer> retour = API.getInstance().simpleService.deleteTerrarium(bt);
+        retour.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                System.out.println("OK");
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                System.out.println("KO");
+            }
+        });
+        finish();
+    }
+
 
 }

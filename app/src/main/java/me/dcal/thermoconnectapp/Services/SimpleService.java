@@ -57,4 +57,7 @@ public interface SimpleService {
 
    @POST("modifTerrarium")
    Call<Integer> modifTerrarium(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("deleteTerrarium")
+   Call<Integer> deleteTerrarium(@Body BodyTerrarium bodyTerrarium);
 }
