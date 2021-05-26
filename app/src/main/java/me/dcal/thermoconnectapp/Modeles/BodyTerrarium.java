@@ -1,9 +1,10 @@
 package me.dcal.thermoconnectapp.Modeles;
 
+import java.io.Serializable;
 import java.sql.Time;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 
-public class BodyTerrarium {
+public class BodyTerrarium implements Serializable {
     public BodyConnexion bodyConnexion;
     public String nameTerrarium;
     public String sizeTerrarium;

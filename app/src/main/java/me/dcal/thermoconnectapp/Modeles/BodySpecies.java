@@ -1,6 +1,8 @@
 package me.dcal.thermoconnectapp.Modeles;
 
-public class BodySpecies {
+import java.io.Serializable;
+
+public class BodySpecies implements Serializable {
 
     public String species;
     public String description;

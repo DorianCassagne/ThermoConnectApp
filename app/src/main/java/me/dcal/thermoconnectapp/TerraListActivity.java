@@ -3,8 +3,10 @@ package me.dcal.thermoconnectapp;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.Serializable;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
@@ -45,8 +48,8 @@ public class TerraListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getBaseContext(), TerrariumActivity.class);
-                intent.putExtra("idTerrarium", bt.getIdTerrarium());
+                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
+                intent.putExtra("Terrarium", bt);
                 startActivity(intent);
             }
         });
@@ -63,6 +66,7 @@ public class TerraListActivity extends AppCompatActivity {
                 API.launchShortToast(getApplicationContext(), "KO");
             }
         });
+
     }
 
     @Override
@@ -102,5 +106,44 @@ public class TerraListActivity extends AppCompatActivity {
     public void ajouterTerrarium(View v){
         Intent i=new Intent(this, AddTerraActivity.class);
         startActivity(i);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
+        ListView terraList = (ListView)findViewById(R.id.TerraList);
+        ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
+
+        terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
+                intent.putExtra("Terrarium", bt);
+                startActivity(intent);
+            }
+        });
+
+        terraList.setOnDragListener(new AdapterView.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                System.out.println("TestDrag");
+                return true;
+            }
+        });
+        list.enqueue(new Callback<List<BodyTerrarium>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
+                for(BodyTerrarium bt : response.body())
+                    arrayAdapter.add(bt);
+                terraList.setAdapter(arrayAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
     }
 }

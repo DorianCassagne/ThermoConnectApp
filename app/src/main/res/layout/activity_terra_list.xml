@@ -19,15 +19,22 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                android:layout_width="200dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layoutDirection="rtl"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/Theme.ThermoConnectApp.PopupOverlay" />
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <Button
                 android:id="@+id/button2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:onClick="ajouterTerrarium"
                 app:icon="@android:drawable/ic_input_add" />
 

@@ -26,8 +26,11 @@ public interface SimpleService {
    @POST("getSpecies")
    public Call<List<BodySpecies>> getspecies(@Body BodyConnexion bodyConnexion);
 
-   @POST("getFile")
-   public Call<ResponseBody> getFile(@Body BodyConnexion bodyConnexion);
+   @POST("getAnimalDocument")
+   public Call<ResponseBody> getFile(@Body BodyAnimal bodyAnimal);
+
+   @POST("getAnimalImage")
+   public Call<ResponseBody> getImage(@Body BodyAnimal bodyAnimal);
 
    @Multipart
    @POST("ajoutAnimal")
@@ -40,11 +43,15 @@ public interface SimpleService {
    public Call<Object> test(@Part BodyConnexion bodyConnexion);*/
 
    @Multipart
-   @POST("upload")
+   @POST("ajoutDocument")
    Call<Integer> upload(
-           @Part("description") BodyConnexion description,
+           @Part("description") BodyAnimal bodyAnimal,
            @Part List<MultipartBody.Part> file
    );
+
    @POST("listTerrarium")
     Call<List<BodyTerrarium>> listTerrarium(@Body BodyConnexion bodyConnexion);
+
+   @POST("listAnimal")
+   Call<List<BodyAnimal>> listAnimal(@Body BodyTerrarium bodyTerrarium);
 }

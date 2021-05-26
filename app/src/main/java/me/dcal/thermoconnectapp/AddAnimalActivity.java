@@ -90,7 +90,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem().toString()));
+                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem()));
             }
 
             @Override
@@ -142,7 +142,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
                                 ,1
-                                ,speciesspinner.getSelectedItem().toString()
+                                , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
                                 ,sexe
                                 , ((TextView) findViewById(R.id.naissance)).getText().toString()
@@ -201,17 +201,17 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         species.enqueue(new Callback<List<BodySpecies>>() {
             @Override
             public void onResponse(Call<List<BodySpecies>> call, Response<List<BodySpecies>> response) {
-                String[] arraySpinner = new String[response.body().size()];
+                BodySpecies[] arraySpinner = new BodySpecies[response.body().size()];
 
                 int i =0;
                 for (BodySpecies specie : response.body()){
-                    arraySpinner[i] = specie.getSpecies();
+                    arraySpinner[i] = specie;
                     arraydescription.put(specie.getSpecies(),specie.getDescription());
                     i++;
                 }
                 speciesspinner = (Spinner) findViewById(R.id.spinner);
 
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddAnimalActivity.this,
+                ArrayAdapter<BodySpecies> adapter = new ArrayAdapter<BodySpecies>(AddAnimalActivity.this,
                         android.R.layout.simple_spinner_item, arraySpinner);
 // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
