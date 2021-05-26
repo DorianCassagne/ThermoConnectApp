@@ -131,12 +131,12 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 UriTab.put("files", UriTabDoc);
                 UriTab.put("picture", UriTabImage);
                 List<String> documents = new ArrayList<>();
-                Boolean sexe = Boolean.TRUE;
+                boolean sex = true;
                 switch (sexspinner.getSelectedItem().toString()) {
                     case "Male":
-                        sexe = Boolean.TRUE;
+                        sex = true;
                     case "Femelle":
-                        sexe = Boolean.FALSE;
+                        sex = false;
 
                 }
 
@@ -145,7 +145,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                                 ,1
                                 , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
-                                ,sexe
+                                ,sex
                                 , ((TextView) findViewById(R.id.naissance)).getText().toString()
                         ,commentaire.getText().toString()
                         ,null

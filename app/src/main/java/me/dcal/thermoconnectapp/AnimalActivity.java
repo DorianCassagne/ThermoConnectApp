@@ -1,6 +1,5 @@
 package me.dcal.thermoconnectapp;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
@@ -13,16 +12,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -35,36 +29,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
-import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
-import me.dcal.thermoconnectapp.Services.BodyConnexion;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -130,7 +111,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         descriptionperso = (TextView) findViewById(R.id.descriptionperso);
 
         name.setText(this.bodyanimal.getName());
-        sexe.setText((this.bodyanimal.getSexe() == Boolean.TRUE ? "Male" : this.bodyanimal.getSexe() == Boolean.FALSE ? "Femelle" : "NC"));
+        sexe.setText((this.bodyanimal.getSex() == true ? "Male" : this.bodyanimal.getSex() == false ? "Femelle" : "NC"));
         descriptionauto.setText(this.bodyanimal.getSpecies().getDescription());
         naissance.setText(this.bodyanimal.getDateOfBirth());
 
