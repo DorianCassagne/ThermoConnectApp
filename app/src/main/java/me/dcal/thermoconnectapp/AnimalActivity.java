@@ -31,6 +31,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -46,6 +47,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,13 +56,18 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -73,10 +80,20 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     TextView newWeight;
     private List<Uri> UriTabDoc = new ArrayList<>();
     private List<Uri> UriTabImage = new ArrayList<>();
+    private HashMap<String, List<Uri>> UriTab = new HashMap<>();
     private Uri finalimage;
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
     private static final int REQUEST_WRITE_PERMISSION = 786;
+    BodyAnimal bodyanimal;
+
+    TextView name;
+    TextView sexe;
+    TextView descriptionauto;
+    TextView naissance;
+    ImageView imgView;
+    TextView descriptionperso;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,10 +101,47 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         pieChart = (LineChart) findViewById(R.id.barchart);
         newWeight = (TextView) findViewById(R.id.nouveaupoids);
         addedfiles = (ListView) findViewById(R.id.docview);
-       arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+        this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
+        this.bodyanimal.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
+
+        addedfiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                List<String> doc = new ArrayList<String>();
+                doc.add(parent.getItemAtPosition(position).toString());
+                bodyanimal.setDocuments(doc);
+                Intent intent = new Intent(getApplicationContext(), FileActivity.class);
+                intent.putExtra("bodyanimal", bodyanimal);
+                startActivity(intent);
+                //loadDocument((String)parent.getItemAtPosition(position));
+
+            }
+        });
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+
+        name = (TextView) findViewById(R.id.name);
+        sexe = (TextView) findViewById(R.id.sexe);
+        descriptionauto = (TextView) findViewById(R.id.descriptionauto);
+        naissance = (TextView) findViewById(R.id.naissance);
+        imgView = (ImageView) findViewById(R.id.animalimage);
+        descriptionperso = (TextView) findViewById(R.id.descriptionperso);
+
+        name.setText(this.bodyanimal.getName());
+        sexe.setText((this.bodyanimal.getSexe() == Boolean.TRUE ? "Male" : this.bodyanimal.getSexe() == Boolean.FALSE ? "Femelle" : "NC"));
+        descriptionauto.setText(this.bodyanimal.getSpecies().getDescription());
+        naissance.setText(this.bodyanimal.getDateOfBirth());
+
+
+        descriptionperso.setText(this.bodyanimal.getDescription());
 
         ArrayList NoOfEmp = new ArrayList();
-        loadDocument();
+        //loadDocument(null);
+        loadimage();
+
+        doclist(this.bodyanimal.getDocuments());
 
         NoOfEmp.add(new Entry(945f, 450));
         NoOfEmp.add(new Entry(1040f, 510));
@@ -112,13 +166,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             public void onClick(View arg0) {
 
                 requestPermission();
-                //API.getInstance().filepicker.requestPermission(AnimalActivity.this, UriTabDoc, finalimage);
+
             }
         });
     }
 
-    public void loadDocument(){
-        Call<ResponseBody> reponse= API.getInstance().simpleService.getFile(API.getBodyConnexion(getApplicationContext()));
+    public void loadimage(){
+        Call<ResponseBody> reponse= API.getInstance().simpleService.getImage(this.bodyanimal);
         reponse.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -126,11 +180,12 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 toast.show();
                 try {
 
-                    File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    File file = new File(path, "magrossebite.png");
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
-                    byte[] data = response.body().bytes();
-                    IOUtils.write(data, fileOutputStream);
+                    Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                    imgView.setImageBitmap(bitmap);
+                    Toast ff = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                    ff.show();
+
+                    //imgView.setImageBitmap(this.bodyanimal.get());
                 }
                 catch (Exception ex){
                     Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
@@ -144,19 +199,21 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
                 toast.show();
             }
-
-
-
-
-
         });
     }
+
 
     public void addWeight(View v){
 
     }
 
+    public void doclist(List<String> listdocs){
+        for (String doc : listdocs){
+            arrayAdapter.add(doc);
+            addedfiles.setAdapter(arrayAdapter);
+        }
 
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_WRITE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -205,8 +262,38 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
                 arrayAdapter.add(tv1.getName());
                 addedfiles.setAdapter(arrayAdapter);
+                UriTabDoc.clear();
                 UriTabDoc.add(fileuri);
-                //
+
+                UriTab.clear();
+                UriTab.put("files", UriTabDoc);
+                List<MultipartBody.Part> part = uploadFile(UriTab);
+                Call<Integer> reponse= API.getInstance().simpleService.upload(bodyanimal, part);
+                reponse.enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+
+                        try {
+
+
+                            Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                            toast.show();
+                            //imgView.setImageBitmap(this.bodyanimal.get());
+                        }
+                        catch (Exception ex){
+                            Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
+                            toasts.show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable t) {
+                        call.request().url();
+                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
+
 
             }else {// for image selection
                 try {
@@ -379,4 +466,57 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
+
+    private List<MultipartBody.Part> uploadFile( HashMap<String, List<Uri>> filesUri) {
+
+        // https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java
+        // use the FileUtils to get the actual file by uri
+        List<MultipartBody.Part> parts = new ArrayList<>();
+
+        for (Map.Entry<String, List<Uri>> entry : filesUri.entrySet())
+        {
+            String key = entry.getKey();
+            List<Uri> value = entry.getValue();
+
+            for (Uri fileuri : value){
+                File file = new File(getPath(getApplicationContext(), fileuri));
+
+                // create RequestBody instance from file
+                RequestBody requestFile =
+                        RequestBody.create(
+                                MediaType.parse(getContentResolver().getType(fileuri)),
+                                file
+                        );
+
+                // MultipartBody.Part is used to send also the actual file name
+                MultipartBody.Part body =
+                        MultipartBody.Part.createFormData(key, file.getName(), requestFile);
+
+                parts.add(body);
+            }
+        }
+
+
+        // add another part within the multipart request
+
+        RequestBody description =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, API.getBodyConnexion(getApplicationContext()).toString());
+        return parts;
+        // finally, execute the request
+        /*Call<Integer> call = API.getInstance().simpleService.upload(API.getBodyConnexion(getApplicationContext()), parts);
+        call.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                API.launchShortToast(getApplicationContext(), "OK");
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+               API.launchShortToast(getApplicationContext(), "KO");
+            }
+
+        });*/
+    }
+
 }
