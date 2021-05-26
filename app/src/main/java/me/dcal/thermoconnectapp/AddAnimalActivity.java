@@ -127,9 +127,15 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         buttoncreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                UriTabImage.add(finalimage);
-                UriTab.put("files", UriTabDoc);
-                UriTab.put("picture", UriTabImage);
+                if (finalimage != null){
+                    UriTabImage.add(finalimage);
+                    UriTab.put("picture", UriTabImage);
+                }
+                if (UriTabDoc.size() >0){
+                    UriTab.put("files", UriTabDoc);
+                }
+
+
                 List<String> documents = new ArrayList<>();
                 Boolean sex = true;
                 if (sexspinner.getSelectedItem().toString().equals("Male")){
@@ -152,7 +158,11 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         ,0
                 , documents);
 
-                List<MultipartBody.Part> part= uploadFile(UriTab);
+                List<MultipartBody.Part> part = new ArrayList<>();
+                if (UriTab.size() > 0){
+                    part = uploadFile(UriTab);
+                }
+
                 Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);
                 reponse.enqueue(new Callback<Integer>() {
                     @Override

@@ -97,7 +97,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 intent.putExtra("bodyanimal", bodyanimal);
                 startActivity(intent);
                 //loadDocument((String)parent.getItemAtPosition(position));
-
             }
         });
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
