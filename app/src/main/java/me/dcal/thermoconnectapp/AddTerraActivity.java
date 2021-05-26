@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -35,6 +36,7 @@ public class AddTerraActivity extends AppCompatActivity {
     TextView textHumidity;
     EditText nameTerrarium;
     Spinner spinner;
+    TextView erreurDisplay;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,7 @@ public class AddTerraActivity extends AppCompatActivity {
         textFroid=findViewById(R.id.textFroid);
         textHumidity=findViewById(R.id.textHumidity);
         nameTerrarium=findViewById(R.id.nameTerrarium);
+        erreurDisplay=findViewById(R.id.erreurAddTerra);
         /*timeMin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,7 +68,19 @@ public class AddTerraActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView adapter, View v, int i, long lng) {
 
+                cacheErreur();                //or this can be also right: selecteditem = level[i];
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView)
+            {
+                cacheErreur();
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -82,10 +97,7 @@ public class AddTerraActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (item.getItemId()) {
             case R.id.deconnexion:
-                API.setBodyConnexion(getApplicationContext(),null);
-                Intent i=new Intent(this, LoginActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
+                deconnexion();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -93,9 +105,14 @@ public class AddTerraActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
 
     }
-
+    public void deconnexion(){
+        API.setBodyConnexion(getApplicationContext(),null);
+        Intent i=new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
     public void clickTimeMin(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
+        cacheErreur();
         timeMinPickerDialog=new TimePickerDialog(AddTerraActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
@@ -109,7 +126,7 @@ public class AddTerraActivity extends AppCompatActivity {
         timeMinPickerDialog.show();
     }
     public void clickTimeMax(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
+        cacheErreur();
         timeMaxPickerDialog=new TimePickerDialog(AddTerraActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
@@ -124,31 +141,50 @@ public class AddTerraActivity extends AppCompatActivity {
         timeMaxPickerDialog.show();
     }
     public void plusPointChaud(View v){
+        cacheErreur();
         textChaud.setText((Integer.parseInt(textChaud.getText().toString())+1)+"");
     }
     public void moinsPointChaud(View v){
-        textChaud.setText((Integer.parseInt(textChaud.getText().toString())-1)+"");
+        cacheErreur();
+        if(Integer.parseInt(textChaud.getText().toString())-1>=Integer.parseInt(textFroid.getText().toString())){
+            textChaud.setText((Integer.parseInt(textChaud.getText().toString())-1)+"");
+        }
     }
     public void moinsPointFroid(View v){
+        cacheErreur();
         textFroid.setText((Integer.parseInt(textFroid.getText().toString())-1)+"");
     }
     public void plusPointFroid(View v){
-        textFroid.setText((Integer.parseInt(textFroid.getText().toString())+1)+"");
+        cacheErreur();
+        if(Integer.parseInt(textFroid.getText().toString())+1<=Integer.parseInt(textChaud.getText().toString())) {
+            textFroid.setText((Integer.parseInt(textFroid.getText().toString()) + 1) + "");
+        }
     }
     public void plusHumidity(View v){
+        cacheErreur();
         int humidity =(Integer.parseInt(textHumidity.getText().toString())+1);
         if(humidity<=100) {
             textHumidity.setText((Integer.parseInt(textHumidity.getText().toString()) + 1) + "");
         }
     }
     public void moinsHumidity(View v){
+        cacheErreur();
         int humidity=(Integer.parseInt(textHumidity.getText().toString())-1);
         if(humidity>=0){
             textHumidity.setText(humidity+"");
         }
     }
+    public void afficheErreur(String erreur){
+        erreurDisplay.setText(erreur);
+        erreurDisplay.setVisibility(View.VISIBLE);
+    }
+    public void cacheErreur(){
+        erreurDisplay.setVisibility(View.GONE);
+    }
     public void ajouter(View v){
-        if(nameTerrarium.getText().toString()!="") {
+        cacheErreur();
+        //TODO a regarder les erreurs
+        if(nameTerrarium.getText().toString().length()!=0) {
             BodyTerrarium bodyTerrarium = new BodyTerrarium(API.getBodyConnexion(getApplicationContext()),
                     nameTerrarium.getText().toString(),
                     spinner.getSelectedItem().toString(),
@@ -162,22 +198,34 @@ public class AddTerraActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Integer> call, Response<Integer> response) {
                     Integer i=response.body();
-                    Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
-                    toast.show();
-                    /*if(true==i.booleanValue()){
-                        API.setBodyConnexion(getApplicationContext(),body);
+                    if(i==null){
+                        afficheErreur("Une erreur est survenu, veuillez reessayer plus tard");
+                        API.launchShortToast(getApplicationContext(),"Une erreur est survenu, veuillez reessayer plus tard");
+                    }
+                    else if(i==-1){
+                        deconnexion();
+                        API.launchShortToast(getApplicationContext(),"Une erreur est survenu, veuillez vous reconnecter");
+                    }else if(i==0){
+                        //Erreur que me renvoie le serveur
+                        afficheErreur("Le formulaire contient des erreurs, ou un terrarium avec ce nom existe déjà");
+                        API.launchShortToast(getApplicationContext(),"Le formulaire contient des erreurs, ou un terrarium avec ce nom existe déjà");
+                    }
+                    else{
                         Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
                         startActivity(intent);
-                    }*/
+                    }
+
                 }
 
                 @Override
                 public void onFailure(Call<Integer> call, Throwable t) {
                     call.request().url();
-                    Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                    toast.show();
+                    API.launchShortToast(getApplicationContext(),"La connexion avec le serveur rencontre un probleme");
+                    afficheErreur("La connexion avec le serveur rencontre un probleme");
                 }
             });
+        }else{
+            afficheErreur("le formulaire contient des erreurs");
         }
     }
 }

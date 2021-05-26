@@ -3,13 +3,18 @@ package me.dcal.thermoconnectapp.Services;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
 
+import me.dcal.thermoconnectapp.R;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
@@ -21,11 +26,12 @@ public class API {
     public Moshi moshi;
     //TODO set url
     private static  final String urlFilePreference="me.dcal.thermoconnectapp.preferenceLogin";
-    private static final String urlBaseRetrofit="http://thermoconnect.dcal.me/";
+    private static final String urlBaseRetrofit="http://thermoconnect.dcal.me/";//http://devmobile.dcal.me/
+    private static final String urlImageLogin="http://devmobile.dcal.me/pic";
     private API(){
         //TODO mettre en place la création des services
         moshi=new Moshi.Builder().addLast(new KotlinJsonAdapterFactory()).build();
-        retrofit = new Retrofit.Builder().baseUrl("http://devmobile.dcal.me/").addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
+        retrofit = new Retrofit.Builder().baseUrl(urlBaseRetrofit).addCallAdapterFactory(RxJavaCallAdapterFactory.create()).addConverterFactory(MoshiConverterFactory.create(moshi)).build();
         simpleService=retrofit.create(SimpleService.class);
     }
     public static final void launchShortToast(Context context,String text){
@@ -63,8 +69,10 @@ public class API {
             editor.putString("password", body.password);
             editor.apply();
         }
-
-
+    }
+    public static final void getImageLogin(ImageView imageView){
+        Uri uri=Uri.parse(urlImageLogin);
+        Glide.with(imageView).load(uri).apply(new RequestOptions().placeholder(R.drawable.loading).error(R.drawable.errorconnexion)).into(imageView);
     }
     public static final API getInstance(){
         return instance;
