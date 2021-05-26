@@ -114,6 +114,32 @@ public class TerrariumActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
+        ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
+        ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
+
+        AnimalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BodyAnimal ba = (BodyAnimal)parent.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(), AnimalActivity.class);
+                intent.putExtra("Animal", ba);
+                startActivity(intent);
+            }
+        });
+        list.enqueue(new Callback<List<BodyAnimal>>() {
+            @Override
+            public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
+                for(BodyAnimal ba : response.body())
+                    arrayAdapter.add(ba);
+                AnimalList.setAdapter(arrayAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyAnimal>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
     }
 
 }
