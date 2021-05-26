@@ -190,9 +190,9 @@ public class AddTerraActivity extends AppCompatActivity {
                     spinner.getSelectedItem().toString(),
                     timeMin.getText().toString() + ":00",
                     timeMax.getText().toString() + ":00",
-                    Integer.parseInt(textChaud.getText().toString()),
-                    Integer.parseInt(textFroid.getText().toString()),
-                    Integer.parseInt(textHumidity.getText().toString()));
+                    Double.parseDouble(textChaud.getText().toString()),
+                    Double.parseDouble(textFroid.getText().toString()),
+                    Double.parseDouble(textHumidity.getText().toString()));
             Call<Integer> reponse= API.getInstance().simpleService.ajoutTerrarium(bodyTerrarium);
             reponse.enqueue(new Callback<Integer>() {
                 @Override

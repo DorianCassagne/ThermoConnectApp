@@ -9,4 +9,16 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/add"
+        android:orderInCategory="1"
+        android:title="@string/action_add"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/animal"
+        android:orderInCategory="1"
+        android:title="@string/action_animal"
+        app:showAsAction="never" />
+
 </menu>

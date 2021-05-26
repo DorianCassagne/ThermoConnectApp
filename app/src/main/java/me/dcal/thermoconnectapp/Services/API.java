@@ -1,6 +1,5 @@
 package me.dcal.thermoconnectapp.Services;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -10,8 +9,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.squareup.moshi.JsonAdapter;
+
 import com.squareup.moshi.Moshi;
-import com.squareup.moshi.Types;
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
 
 import me.dcal.thermoconnectapp.R;
@@ -26,8 +25,9 @@ public class API {
     public Moshi moshi;
     //TODO set url
     private static  final String urlFilePreference="me.dcal.thermoconnectapp.preferenceLogin";
-    private static final String urlBaseRetrofit="http://thermoconnect.dcal.me/";//http://devmobile.dcal.me/
     private static final String urlImageLogin="http://devmobile.dcal.me/pic";
+    private static final String produrlBaseRetrofit="http://thermoconnect.dcal.me/";
+    private static final String urlBaseRetrofit="http://devmobile.dcal.me/";
     private API(){
         //TODO mettre en place la création des services
         moshi=new Moshi.Builder().addLast(new KotlinJsonAdapterFactory()).build();

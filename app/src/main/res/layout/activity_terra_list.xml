@@ -12,35 +12,26 @@
         android:layout_height="wrap_content"
         android:theme="@style/Theme.ThermoConnectApp.AppBarOverlay">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                android:layout_width="30dp"
-                android:layout_height="51dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="288dp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
                 android:background="?attr/colorPrimary"
-                app:layout_constraintEnd_toStartOf="@+id/button2"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:popupTheme="@style/Theme.ThermoConnectApp.PopupOverlay" />
 
             <Button
                 android:id="@+id/button2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:onClick="ajouterTerrarium"
-                app:icon="@android:drawable/ic_input_add"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.984"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:icon="@android:drawable/ic_input_add" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
