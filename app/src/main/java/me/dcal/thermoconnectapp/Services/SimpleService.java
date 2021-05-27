@@ -60,4 +60,8 @@ public interface SimpleService {
 
    @POST("deleteTerrarium")
    Call<Integer> deleteTerrarium(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("deleteAnimal")
+   Call<Integer> deleteAnimal(@Body BodyAnimal bodyAnimal);
+
 }

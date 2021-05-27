@@ -18,6 +18,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +30,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
@@ -38,6 +44,7 @@ import retrofit2.Response;
 
 public class TerrariumActivity extends AppCompatActivity {
 
+    LineChart pieChart;
     private BodyTerrarium bt;
     private TimePickerDialog timeMinPickerDialog;
     private TimePickerDialog timeMaxPickerDialog;
@@ -64,7 +71,11 @@ public class TerrariumActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
 
+
+
         //Init
+        pieChart = (LineChart) findViewById(R.id.barchart);
+        setchart();
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
         TitleTerrariumEdit = (EditText)findViewById(R.id.TitleTerrariumEdit);
         temperatureMin = (TextView)findViewById(R.id.TemperatureFroidTerrarium);
@@ -146,14 +157,6 @@ public class TerrariumActivity extends AppCompatActivity {
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 return true;
-            case R.id.add:
-                Intent a=new Intent(this, AddAnimalActivity.class);
-                startActivity(a);
-                return true;
-            case R.id.animal:
-                Intent q =new Intent(this, AnimalActivity.class);
-                startActivity(q);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -163,6 +166,7 @@ public class TerrariumActivity extends AppCompatActivity {
 
     public void ajouterAnimal(View v){
         Intent i=new Intent(this, AddAnimalActivity.class);
+        i.putExtra("idterra", this.bt.getIdTerrarium());
         startActivity(i);
     }
 
@@ -389,6 +393,23 @@ public class TerrariumActivity extends AppCompatActivity {
         });
         finish();
     }
+    public void setchart(){
+        ArrayList NoOfEmp = new ArrayList();
+        NoOfEmp.add(new Entry(945f, 450));
+        NoOfEmp.add(new Entry(1040f, 510));
+        NoOfEmp.add(new Entry(1133f, 520));
+        NoOfEmp.add(new Entry(1240f, 600));
+        NoOfEmp.add(new Entry(1369f, 615));
+        NoOfEmp.add(new Entry(1487f, 689));
+        NoOfEmp.add(new Entry(1501f, 750));
 
+        LineDataSet dataSet = new LineDataSet(NoOfEmp, "Evolution du poids");
+
+        LineData data = new LineData(dataSet);
+
+        pieChart.setData(data);
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        pieChart.animateXY(5000, 5000);
+    }
 
 }

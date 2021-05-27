@@ -7,28 +7,31 @@
     tools:context=".AddTerraActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/Theme.ThermoConnectApp.AppBarOverlay">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="30dp"
-                android:layout_height="51dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="288dp"
-                android:background="?attr/colorPrimary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:popupTheme="@style/Theme.ThermoConnectApp.PopupOverlay" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layoutDirection="rtl"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/Theme.ThermoConnectApp.PopupOverlay" />
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+    </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_add_terra" />

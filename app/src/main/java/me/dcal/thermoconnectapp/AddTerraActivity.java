@@ -73,12 +73,12 @@ public class AddTerraActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView adapter, View v, int i, long lng) {
 
-                cacheErreur();                //or this can be also right: selecteditem = level[i];
+                cacheErreur(null);               //or this can be also right: selecteditem = level[i];
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView)
             {
-                cacheErreur();
+                cacheErreur(null);
             }
         });
     }
@@ -112,7 +112,7 @@ public class AddTerraActivity extends AppCompatActivity {
         startActivity(i);
     }
     public void clickTimeMin(View v){
-        cacheErreur();
+        cacheErreur(null);
         timeMinPickerDialog=new TimePickerDialog(AddTerraActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
@@ -126,7 +126,7 @@ public class AddTerraActivity extends AppCompatActivity {
         timeMinPickerDialog.show();
     }
     public void clickTimeMax(View v){
-        cacheErreur();
+        cacheErreur(null);
         timeMaxPickerDialog=new TimePickerDialog(AddTerraActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
@@ -141,34 +141,34 @@ public class AddTerraActivity extends AppCompatActivity {
         timeMaxPickerDialog.show();
     }
     public void plusPointChaud(View v){
-        cacheErreur();
+        cacheErreur(null);
         textChaud.setText((Integer.parseInt(textChaud.getText().toString())+1)+"");
     }
     public void moinsPointChaud(View v){
-        cacheErreur();
+        cacheErreur(null);
         if(Integer.parseInt(textChaud.getText().toString())-1>=Integer.parseInt(textFroid.getText().toString())){
             textChaud.setText((Integer.parseInt(textChaud.getText().toString())-1)+"");
         }
     }
     public void moinsPointFroid(View v){
-        cacheErreur();
+        cacheErreur(null);
         textFroid.setText((Integer.parseInt(textFroid.getText().toString())-1)+"");
     }
     public void plusPointFroid(View v){
-        cacheErreur();
+        cacheErreur(null);
         if(Integer.parseInt(textFroid.getText().toString())+1<=Integer.parseInt(textChaud.getText().toString())) {
             textFroid.setText((Integer.parseInt(textFroid.getText().toString()) + 1) + "");
         }
     }
     public void plusHumidity(View v){
-        cacheErreur();
+        cacheErreur(null);
         int humidity =(Integer.parseInt(textHumidity.getText().toString())+1);
         if(humidity<=100) {
             textHumidity.setText((Integer.parseInt(textHumidity.getText().toString()) + 1) + "");
         }
     }
     public void moinsHumidity(View v){
-        cacheErreur();
+        cacheErreur(null);
         int humidity=(Integer.parseInt(textHumidity.getText().toString())-1);
         if(humidity>=0){
             textHumidity.setText(humidity+"");
@@ -178,11 +178,11 @@ public class AddTerraActivity extends AppCompatActivity {
         erreurDisplay.setText(erreur);
         erreurDisplay.setVisibility(View.VISIBLE);
     }
-    public void cacheErreur(){
+    public void cacheErreur(View v){
         erreurDisplay.setVisibility(View.GONE);
     }
     public void ajouter(View v){
-        cacheErreur();
+        cacheErreur(null);
         //TODO a regarder les erreurs
         if(nameTerrarium.getText().toString().length()!=0) {
             BodyTerrarium bodyTerrarium = new BodyTerrarium(API.getBodyConnexion(getApplicationContext()),

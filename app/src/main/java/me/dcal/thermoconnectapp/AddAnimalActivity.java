@@ -66,6 +66,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
     private TextView naissance;
     private TextView poids;
     private Uri finalimage;
+    int idterra;
     Spinner speciesspinner;
     Spinner sexspinner;
     TextView autodescrip;
@@ -80,6 +81,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         setContentView(R.layout.activity_add_animal);
         setSpecies();
         setSexe();
+
+        idterra  = (int) getIntent().getSerializableExtra("idterra");
 
         ImageView img = (ImageView) findViewById(R.id.imgView);
         TextView name = (TextView) findViewById(R.id.name);
@@ -148,7 +151,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
-                                ,1
+                                , idterra
                                 , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
                                 ,sex

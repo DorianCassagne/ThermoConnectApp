@@ -84,6 +84,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         addedfiles = (ListView) findViewById(R.id.docview);
 
         this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
+
         this.bodyanimal.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
 
         addedfiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -117,27 +118,12 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
         descriptionperso.setText(this.bodyanimal.getDescription());
 
-        ArrayList NoOfEmp = new ArrayList();
+
         //loadDocument(null);
         loadimage();
-
+        setchart();
         doclist(this.bodyanimal.getDocuments());
 
-        NoOfEmp.add(new Entry(945f, 450));
-        NoOfEmp.add(new Entry(1040f, 510));
-        NoOfEmp.add(new Entry(1133f, 520));
-        NoOfEmp.add(new Entry(1240f, 600));
-        NoOfEmp.add(new Entry(1369f, 615));
-        NoOfEmp.add(new Entry(1487f, 689));
-        NoOfEmp.add(new Entry(1501f, 750));
-
-        LineDataSet dataSet = new LineDataSet(NoOfEmp, "Evolution du poids");
-
-        LineData data = new LineData(dataSet);
-
-        pieChart.setData(data);
-        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        pieChart.animateXY(5000, 5000);
 
 
         Button buttonLoadFile = (Button) findViewById(R.id.addfiles);
@@ -497,6 +483,43 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             }
 
         });*/
+    }
+
+
+    public void deleteAnimal(View v){
+       // updateInfoVue(v);
+        Call<Integer> retour = API.getInstance().simpleService.deleteAnimal(this.bodyanimal);
+        retour.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                System.out.println("OK");
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                System.out.println("KO");
+            }
+        });
+        finish();
+    }
+
+    public void setchart(){
+        ArrayList NoOfEmp = new ArrayList();
+        NoOfEmp.add(new Entry(945f, 450));
+        NoOfEmp.add(new Entry(1040f, 510));
+        NoOfEmp.add(new Entry(1133f, 520));
+        NoOfEmp.add(new Entry(1240f, 600));
+        NoOfEmp.add(new Entry(1369f, 615));
+        NoOfEmp.add(new Entry(1487f, 689));
+        NoOfEmp.add(new Entry(1501f, 750));
+
+        LineDataSet dataSet = new LineDataSet(NoOfEmp, "Evolution du poids");
+
+        LineData data = new LineData(dataSet);
+
+        pieChart.setData(data);
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        pieChart.animateXY(5000, 5000);
     }
 
 }
