@@ -13,9 +13,12 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,10 +41,14 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
@@ -504,6 +511,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     }
 
     public void setchart(){
+
         ArrayList NoOfEmp = new ArrayList();
         NoOfEmp.add(new Entry(945f, 450));
         NoOfEmp.add(new Entry(1040f, 510));
@@ -520,6 +528,10 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         pieChart.setData(data);
         dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         pieChart.animateXY(5000, 5000);
+    }
+
+    protected float getRandom(float range, float start) {
+        return (float) (Math.random() * range) + start;
     }
 
 }

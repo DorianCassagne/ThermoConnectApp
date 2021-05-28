@@ -94,7 +94,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem()));
+                autodescrip.setText(arraydescription.get(parentView.getItemAtPosition(position).toString()));
             }
 
             @Override
