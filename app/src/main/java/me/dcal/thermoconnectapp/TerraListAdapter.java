@@ -12,12 +12,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
+import me.dcal.thermoconnectapp.Modeles.TerraListData;
 
-public class TerraListAdapter extends ArrayAdapter<BodyTerrariumData>{
+public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
 
     private int resourceLayout;
     private Context mContext;
@@ -29,38 +31,37 @@ public class TerraListAdapter extends ArrayAdapter<BodyTerrariumData>{
     }
 
     @Override
-    public void add(@Nullable BodyTerrariumData bd) {
-        super.add(bd);
+    public void add(@Nullable TerraListData tld) {
+        super.add(tld);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View v = convertView;
-
         if (v == null) {
             LayoutInflater vi;
             vi = LayoutInflater.from(mContext);
             v = vi.inflate(resourceLayout, null);
         }
 
-        BodyTerrariumData bd = getItem(position);
+        TerraListData tld = getItem(position);
 
-        if (bd != null) {
+        if (tld != null) {
             TextView name = (TextView) v.findViewById(R.id.ListeNom);
             TextView temperature = (TextView) v.findViewById(R.id.ListeTemperature);
             TextView humidite = (TextView) v.findViewById(R.id.ListHumidite);
 
             if (name != null) {
-                name.setText(bd.getId());
+                name.setText(tld.getBt().getNameTerrarium());
             }
 
             if (temperature != null) {
-                temperature.setText(bd.getTemperature().toString());
+                temperature.setText(tld.getBd().getTemperature().toString());
             }
 
             if (humidite != null) {
-                humidite.setText(bd.getHumidity().toString());
+                humidite.setText(tld.getBd().getHumidity().toString());
             }
         }
 

@@ -17,7 +17,7 @@
             android:layout_weight="1"
             android:typeface="monospace"
             android:textAlignment="center"
-            android:height="40sp" />
+            android:height="40sp"/>
     </TableRow>
 
     <TableRow android:layout_height="wrap_content"
