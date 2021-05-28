@@ -8,18 +8,20 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
+
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -41,17 +43,22 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
+import me.dcal.thermoconnectapp.Modeles.BodyAnimalData;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
+import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -70,6 +77,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     private List<Uri> UriTabImage = new ArrayList<>();
     private HashMap<String, List<Uri>> UriTab = new HashMap<>();
     private Uri finalimage;
+    private ArrayList<Entry> dataGraphWeight;
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
     private static final int REQUEST_WRITE_PERMISSION = 786;
@@ -87,6 +95,18 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_animal);
         pieChart = (LineChart) findViewById(R.id.barchart);
+        XAxis xAxis = pieChart.getXAxis();
+
+        xAxis.setValueFormatter(new ValueFormatter(){
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MM YY", Locale.FRANCE);
+            @Override
+            public String getFormattedValue(float value) {
+                long millis = TimeUnit.DAYS.toMillis((long) value);
+                return mFormat.format(new Date(millis));
+            }
+
+        });
+
         newWeight = (TextView) findViewById(R.id.nouveaupoids);
         addedfiles = (ListView) findViewById(R.id.docview);
 
@@ -178,6 +198,31 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
     public void addWeight(View v){
 
+       /* Double weight = Double.parseDouble(newWeight.getText().toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
+        String currentDateandTime = sdf.format(new Date());
+
+        BodyAnimalData body = new BodyAnimalData(this.bodyanimal.getBodyConnexion(),this.bodyanimal.getIdAnimal(), currentDateandTime,weight);
+        ArrayList<Entry> data = new ArrayList<Entry>();
+        long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
+        data.add(new Entry(now, Float.parseFloat(weight.toString())));
+        pieChart.getLineData().addDataSet(data);
+        Call<Integer> reponse= API.getInstance().simpleService.setAllAnimalData(body);
+        reponse.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                toast.show();
+
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                call.request().url();
+                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });*/
     }
 
     public void doclist(List<String> listdocs){
@@ -512,26 +557,39 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
     public void setchart(){
 
-        ArrayList NoOfEmp = new ArrayList();
-        NoOfEmp.add(new Entry(945f, 450));
-        NoOfEmp.add(new Entry(1040f, 510));
-        NoOfEmp.add(new Entry(1133f, 520));
-        NoOfEmp.add(new Entry(1240f, 600));
-        NoOfEmp.add(new Entry(1369f, 615));
-        NoOfEmp.add(new Entry(1487f, 689));
-        NoOfEmp.add(new Entry(1501f, 750));
 
-        LineDataSet dataSet = new LineDataSet(NoOfEmp, "Evolution du poids");
+        dataGraphWeight = new ArrayList<Entry>();
+        Call<List<BodyAnimalData>> data = API.getInstance().simpleService.getAllAnimalData(this.bodyanimal);
+        data.enqueue(new Callback<List<BodyAnimalData>>() {
+            @Override
+            public void onResponse(Call<List<BodyAnimalData>> call, Response<List<BodyAnimalData>> response) {
+                List<BodyAnimalData> listdata = response.body();
+                Collections.sort(listdata);
+                for(BodyAnimalData bd : listdata){
+                    String time = bd.getDateAnimalData()+" 00:00:00.0";
+                    //long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
+                    //long test = TimeUnit.MILLISECONDS.toHours(time);
+                    long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(time)));
+                    dataGraphWeight.add(new Entry(now, Float.parseFloat(bd.getWeight().toString())));
+                }
+                LineDataSet datasetWeight= new LineDataSet(dataGraphWeight, "Evolution du poids(g)");
+                datasetWeight.setColor(Color.BLUE);
+                LineData data = new LineData(datasetWeight);
+                pieChart.setData(data);
+                pieChart.animateXY(0, 0);
 
-        LineData data = new LineData(dataSet);
+            }
 
-        pieChart.setData(data);
-        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        pieChart.animateXY(5000, 5000);
+            @Override
+            public void onFailure(Call<List<BodyAnimalData>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
     }
 
-    protected float getRandom(float range, float start) {
-        return (float) (Math.random() * range) + start;
+    public long timestampToFloat(Timestamp tm){
+        long time =  tm.getTime();
+        return time;
     }
 
 }
