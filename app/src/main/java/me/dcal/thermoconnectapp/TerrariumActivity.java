@@ -2,6 +2,7 @@ package me.dcal.thermoconnectapp;
 
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +19,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,10 +35,18 @@ import androidx.appcompat.widget.Toolbar;
 
 import org.w3c.dom.Text;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
+import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 import retrofit2.Call;
@@ -38,6 +56,7 @@ import retrofit2.Response;
 
 public class TerrariumActivity extends AppCompatActivity {
 
+    private LineChart chart;
     private BodyTerrarium bt;
     private TimePickerDialog timeMinPickerDialog;
     private TimePickerDialog timeMaxPickerDialog;
@@ -52,6 +71,8 @@ public class TerrariumActivity extends AppCompatActivity {
     private TextView heureMinTerrarium;
     private TextView heureMaxTerrarium;
     private Button save_button;
+    private ArrayList<Entry> dataGraphTemperature;
+    private ArrayList<Entry> dataGraphHumidite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +88,7 @@ public class TerrariumActivity extends AppCompatActivity {
         //Init
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
         TitleTerrariumEdit = (EditText)findViewById(R.id.TitleTerrariumEdit);
+        chart = (LineChart)findViewById(R.id.barchart);
         temperatureMin = (TextView)findViewById(R.id.TemperatureFroidTerrarium);
         minPicker = (NumberPicker)findViewById(R.id.TemperatureFroidTerrariumEdit);
         temperatureMax = (TextView)findViewById(R.id.TemperatureChaudTerrarium);
@@ -76,6 +98,7 @@ public class TerrariumActivity extends AppCompatActivity {
         heureMinTerrarium = (TextView)findViewById(R.id.HeureMinTerrarium);
         heureMaxTerrarium = (TextView)findViewById(R.id.HeureMaxTerrarium);
         save_button = (Button)findViewById(R.id.save_button);
+
         //Setup Value
         TitleTerrariumEdit.setText(bt.getNameTerrarium());
         TitleTerrarium.setText(bt.getNameTerrarium());
@@ -97,6 +120,36 @@ public class TerrariumActivity extends AppCompatActivity {
         heureMinTerrarium.setText(bt.getStartLightTime());
         heureMaxTerrarium.setText(bt.getStopLightTime());
         bt.setBodyConnexion(body);
+
+        //On resume et liste
+        dataGraphTemperature = new ArrayList<Entry>();
+        dataGraphHumidite = new ArrayList<Entry>();
+        Call<List<BodyTerrariumData>> data = API.getInstance().simpleService.getAllTerrariumdata(bt);
+        data.enqueue(new Callback<List<BodyTerrariumData>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
+                for(BodyTerrariumData bd : response.body()){
+                    Random r = new Random();
+                    /*//timestampToFloat(Timestamp.valueOf(bd.getDate()));
+                    //dataGraphTemperature.add(new Entry(Float.parseFloat(bd.getTemperature().toString()), timestampToFloat(Timestamp.valueOf(bd.getDate()))));
+                    //dataGraphHumidite.add(new Entry(Float.parseFloat(bd.getHumidity().toString()) ,timestampToFloat(Timestamp.valueOf(bd.getDate()))));
+                    */dataGraphTemperature.add(new Entry(timestampToFloat(Timestamp.valueOf(bd.getDate())), Float.parseFloat(bd.getTemperature().toString())));
+                    dataGraphHumidite.add(new Entry(timestampToFloat(Timestamp.valueOf(bd.getDate())), Float.parseFloat(bd.getHumidity().toString())));
+                }
+                LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
+                LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
+                datasetHumidite.setColor(Color.BLUE);
+                dataSetTemperature.setColors(Color.RED);
+                LineData data = new LineData(dataSetTemperature, datasetHumidite);
+                chart.setData(data);
+                chart.animateXY(0, 0);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
         Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
         ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
         ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
@@ -388,6 +441,12 @@ public class TerrariumActivity extends AppCompatActivity {
             }
         });
         finish();
+    }
+
+    //chart
+    public float timestampToFloat(Timestamp tm){
+        float time = tm.getHours() + (float) tm.getMinutes()/60 + (float) tm.getSeconds()/3600;
+        return time;
     }
 
 

@@ -22,7 +22,6 @@ public class BodyAnimal implements Serializable {
 
     public BodyAnimal(BodyConnexion bodyConnexion, int terrarium, BodySpecies species, String name, Boolean sex, String dateOfBirth, String description, String food, int weight, List<String> documents) {
         this.bodyConnexion = bodyConnexion;
-        this.idAnimal = idAnimal;
         this.terrarium = terrarium;
         this.species = species;
         this.name = name;
