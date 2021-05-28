@@ -12,6 +12,11 @@ public class BodySpecies implements Serializable {
         this.description = description;
     }
 
+    @Override
+    public String toString() {
+        return  this.species;
+    }
+
     public String getSpecies() {
         return species;
     }

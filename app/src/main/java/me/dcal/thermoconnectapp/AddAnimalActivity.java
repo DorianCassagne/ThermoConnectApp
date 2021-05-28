@@ -66,6 +66,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
     private TextView naissance;
     private TextView poids;
     private Uri finalimage;
+    int idterra;
     Spinner speciesspinner;
     Spinner sexspinner;
     TextView autodescrip;
@@ -81,6 +82,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         setSpecies();
         setSexe();
 
+        idterra  = (int) getIntent().getSerializableExtra("idterra");
+
         ImageView img = (ImageView) findViewById(R.id.imgView);
         TextView name = (TextView) findViewById(R.id.name);
         autodescrip = (TextView) findViewById(R.id.descriptionauto) ;
@@ -91,7 +94,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // your code here
-                autodescrip.setText(arraydescription.get(speciesspinner.getSelectedItem()));
+                autodescrip.setText(arraydescription.get(parentView.getItemAtPosition(position).toString()));
             }
 
             @Override
@@ -127,9 +130,15 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         buttoncreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                UriTabImage.add(finalimage);
-                UriTab.put("files", UriTabDoc);
-                UriTab.put("picture", UriTabImage);
+                if (finalimage != null){
+                    UriTabImage.add(finalimage);
+                    UriTab.put("picture", UriTabImage);
+                }
+                if (UriTabDoc.size() >0){
+                    UriTab.put("files", UriTabDoc);
+                }
+
+
                 List<String> documents = new ArrayList<>();
                 Boolean sex = true;
                 if (sexspinner.getSelectedItem().toString().equals("Male")){
@@ -142,7 +151,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                 BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
-                                ,1
+                                , idterra
                                 , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
                                 ,sex
@@ -152,7 +161,11 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         ,0
                 , documents);
 
-                List<MultipartBody.Part> part= uploadFile(UriTab);
+                List<MultipartBody.Part> part = new ArrayList<>();
+                if (UriTab.size() > 0){
+                    part = uploadFile(UriTab);
+                }
+
                 Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);
                 reponse.enqueue(new Callback<Integer>() {
                     @Override

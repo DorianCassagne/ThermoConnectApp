@@ -20,13 +20,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.XAxis;
+
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,10 +33,9 @@ import androidx.appcompat.widget.Toolbar;
 
 import org.w3c.dom.Text;
 
+
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -55,6 +52,7 @@ import retrofit2.Response;
 
 
 public class TerrariumActivity extends AppCompatActivity {
+
 
     private LineChart chart;
     private BodyTerrarium bt;
@@ -84,6 +82,8 @@ public class TerrariumActivity extends AppCompatActivity {
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
+
+
 
         //Init
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
@@ -199,14 +199,6 @@ public class TerrariumActivity extends AppCompatActivity {
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 return true;
-            case R.id.add:
-                Intent a=new Intent(this, AddAnimalActivity.class);
-                startActivity(a);
-                return true;
-            case R.id.animal:
-                Intent q =new Intent(this, AnimalActivity.class);
-                startActivity(q);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -216,6 +208,7 @@ public class TerrariumActivity extends AppCompatActivity {
 
     public void ajouterAnimal(View v){
         Intent i=new Intent(this, AddAnimalActivity.class);
+        i.putExtra("idterra", this.bt.getIdTerrarium());
         startActivity(i);
     }
 
