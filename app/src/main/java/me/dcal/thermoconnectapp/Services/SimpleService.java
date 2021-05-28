@@ -64,4 +64,7 @@ public interface SimpleService {
 
    @POST("getAllTerrariumData")
    Call<List<BodyTerrariumData>> getAllTerrariumdata(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("getLastTerrariumData")
+   Call<BodyTerrariumData> getLastTerrariumData(@Body BodyTerrarium bodyTerrarium);
 }

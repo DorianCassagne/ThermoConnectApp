@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
+import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import me.dcal.thermoconnectapp.Services.API;
 import me.dcal.thermoconnectapp.Services.BodyConnexion;
 import retrofit2.Call;
@@ -44,6 +45,8 @@ public class TerraListActivity extends AppCompatActivity {
         ListView terraList = (ListView)findViewById(R.id.TerraList);
         ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
 
+
+
         terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -56,8 +59,22 @@ public class TerraListActivity extends AppCompatActivity {
         list.enqueue(new Callback<List<BodyTerrarium>>() {
             @Override
             public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
-                for(BodyTerrarium bt : response.body())
+                for(BodyTerrarium bt : response.body()){
                     arrayAdapter.add(bt);
+                    bt.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
+                    Call<BodyTerrariumData> bd = API.getInstance().simpleService.getLastTerrariumData(bt);
+                    bd.enqueue(new Callback<BodyTerrariumData>() {
+                        @Override
+                        public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
+                            System.out.println(response.body().getDate());
+                        }
+
+                        @Override
+                        public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
+                            API.launchShortToast(getApplicationContext(), "KO");
+                        }
+                    });
+                }
                 terraList.setAdapter(arrayAdapter);
             }
 
