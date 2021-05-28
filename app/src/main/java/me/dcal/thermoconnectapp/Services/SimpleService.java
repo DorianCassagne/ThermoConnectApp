@@ -5,6 +5,7 @@ import java.util.List;
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodySpecies;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
+import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -63,5 +64,8 @@ public interface SimpleService {
 
    @POST("deleteAnimal")
    Call<Integer> deleteAnimal(@Body BodyAnimal bodyAnimal);
+
+   @POST("getAllTerrariumData")
+   Call<List<BodyTerrariumData>> getAllTerrariumdata(@Body BodyTerrarium bodyTerrarium);
 
 }
