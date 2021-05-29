@@ -66,7 +66,6 @@ public class TerraListActivity extends AppCompatActivity {
                 API.launchShortToast(getApplicationContext(), "KO");
             }
         });
-
     }
 
     @Override

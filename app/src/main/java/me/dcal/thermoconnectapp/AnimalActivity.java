@@ -17,10 +17,12 @@ import com.github.mikephil.charting.charts.LineChart;
 
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -77,7 +79,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     private List<Uri> UriTabImage = new ArrayList<>();
     private HashMap<String, List<Uri>> UriTab = new HashMap<>();
     private Uri finalimage;
-    private ArrayList<Entry> dataGraphWeight;
+    private ArrayList<Entry> dataGraphWeight = new ArrayList<Entry>();
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
     private static final int REQUEST_WRITE_PERMISSION = 786;
@@ -96,15 +98,14 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         setContentView(R.layout.activity_animal);
         pieChart = (LineChart) findViewById(R.id.barchart);
         XAxis xAxis = pieChart.getXAxis();
-
+        xAxis.setGranularity(1);
         xAxis.setValueFormatter(new ValueFormatter(){
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MM YY", Locale.FRANCE);
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("YYYY-MM-dd", Locale.FRANCE);
             @Override
             public String getFormattedValue(float value) {
-                long millis = TimeUnit.DAYS.toMillis((long) value);
+                long millis = TimeUnit.HOURS.toMillis((long) value);
                 return mFormat.format(new Date(millis));
             }
-
         });
 
         newWeight = (TextView) findViewById(R.id.nouveaupoids);
@@ -198,22 +199,23 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
     public void addWeight(View v){
 
-       /* Double weight = Double.parseDouble(newWeight.getText().toString());
+        Double weight = Double.parseDouble(newWeight.getText().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
 
         BodyAnimalData body = new BodyAnimalData(this.bodyanimal.getBodyConnexion(),this.bodyanimal.getIdAnimal(), currentDateandTime,weight);
         ArrayList<Entry> data = new ArrayList<Entry>();
-        long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
-        data.add(new Entry(now, Float.parseFloat(weight.toString())));
-        pieChart.getLineData().addDataSet(data);
+
         Call<Integer> reponse= API.getInstance().simpleService.setAllAnimalData(body);
         reponse.enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
+                long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
+                //dataGraphWeight.add(new Entry(now, Float.parseFloat(newWeight.getText().toString())));
+                setchart();
+               // pieChart.setData();
                 Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
                 toast.show();
-
             }
 
             @Override
@@ -222,7 +224,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
                 toast.show();
             }
-        });*/
+        });
+
     }
 
     public void doclist(List<String> listdocs){
@@ -558,7 +561,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     public void setchart(){
 
 
-        dataGraphWeight = new ArrayList<Entry>();
+        dataGraphWeight.clear();
         Call<List<BodyAnimalData>> data = API.getInstance().simpleService.getAllAnimalData(this.bodyanimal);
         data.enqueue(new Callback<List<BodyAnimalData>>() {
             @Override
@@ -577,7 +580,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 LineData data = new LineData(datasetWeight);
                 pieChart.setData(data);
                 pieChart.animateXY(0, 0);
-
             }
 
             @Override

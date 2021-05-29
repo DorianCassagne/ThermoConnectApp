@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
+import me.dcal.thermoconnectapp.Simulation.DataSimuTerra;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,6 +38,7 @@ public class AddTerraActivity extends AppCompatActivity {
     EditText nameTerrarium;
     Spinner spinner;
     TextView erreurDisplay;
+    BodyTerrarium bodyTerrarium;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +61,7 @@ public class AddTerraActivity extends AppCompatActivity {
         });*/
     }
     public void setTailleAdapter(){String[] arraySpinner = new String[] {
-            "1", "2", "3", "4", "5", "6", "7"
+            "45x45x45",  "60x60x60", "120x60x60", "120x120x120"
     };
         spinner = (Spinner) findViewById(R.id.spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -185,7 +187,7 @@ public class AddTerraActivity extends AppCompatActivity {
         cacheErreur(null);
         //TODO a regarder les erreurs
         if(nameTerrarium.getText().toString().length()!=0) {
-            BodyTerrarium bodyTerrarium = new BodyTerrarium(API.getBodyConnexion(getApplicationContext()),
+            bodyTerrarium = new BodyTerrarium(API.getBodyConnexion(getApplicationContext()),
                     nameTerrarium.getText().toString(),
                     spinner.getSelectedItem().toString(),
                     timeMin.getText().toString() + ":00",
@@ -212,6 +214,9 @@ public class AddTerraActivity extends AppCompatActivity {
                         API.launchShortToast(getApplicationContext(),"Le formulaire contient des erreurs, ou un terrarium avec ce nom existe déjà");
                     }
                     else{
+                        bodyTerrarium.setIdTerrarium(i);
+                        simulation();
+
                         finish();
                     }
 
@@ -228,5 +233,29 @@ public class AddTerraActivity extends AppCompatActivity {
         }else{
             afficheErreur("le formulaire contient des erreurs");
         }
+    }
+
+    public void simulation(){
+        Thread background = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    while(true){
+                        DataSimuTerra simu = new DataSimuTerra(bodyTerrarium);
+                        simu.simulation();
+                        try {
+                            Thread.sleep(20000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                } catch (Throwable t) {
+                    // gérer l'exception et arrêter le traitement
+                }
+            }
+        });
+
+        //Lancement de la Thread
+        background.start();
     }
 }

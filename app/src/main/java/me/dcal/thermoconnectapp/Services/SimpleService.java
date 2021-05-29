@@ -74,4 +74,10 @@ public interface SimpleService {
 
    @POST("addAnimalData")
    Call<Integer> setAllAnimalData(@Body BodyAnimalData bodyAnimaldata);
+
+
+   @POST("addTerrariumData")
+   Call<Integer> simuSetDataTerra(@Body BodyTerrariumData bodyterrariumdata);
+
+
 }

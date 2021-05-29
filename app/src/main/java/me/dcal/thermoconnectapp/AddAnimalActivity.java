@@ -44,9 +44,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
+import me.dcal.thermoconnectapp.Modeles.BodyAnimalData;
 import me.dcal.thermoconnectapp.Modeles.BodySpecies;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
@@ -67,12 +69,14 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
     private TextView poids;
     private Uri finalimage;
     int idterra;
+    int idanimal;
     Spinner speciesspinner;
     Spinner sexspinner;
     TextView autodescrip;
     TextView commentaire;
     HashMap<String, String> arraydescription = new HashMap<>();
     Boolean type;
+    BodyAnimal bodyAnimal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +110,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         poids = (TextView) findViewById(R.id.poids);
         naissance = (TextView) findViewById(R.id.naissance);
 
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/YYYY");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
         naissance.append(formatter.format(new Date()));
         Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +154,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 }
 
 //((TextView) findViewById(R.id.naissance)).getText().toString()
-                BodyAnimal bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
+                bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
                                 , idterra
                                 , (BodySpecies) speciesspinner.getSelectedItem()
                                 ,name.getText().toString()
@@ -170,10 +174,29 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 reponse.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        Integer i=response.body();
-                        Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
-                        toast.show();
-                        finish();
+                        idanimal = response.body();
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
+                        String currentDateandTime = sdf.format(new Date());
+
+                        BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), idanimal,currentDateandTime, Double.parseDouble(poids.getText().toString()) );
+                        Call<Integer> reponse2= API.getInstance().simpleService.setAllAnimalData(bodydata);
+                        reponse2.enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                Integer i=response.body();
+                                Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
+                                toast.show();
+                                finish();
+                            }
+
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
+                                call.request().url();
+                                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
                     }
 
                     @Override

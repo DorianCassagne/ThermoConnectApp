@@ -5,13 +5,14 @@ import me.dcal.thermoconnectapp.Services.BodyConnexion;
 public class BodyTerrariumData {
 
     public BodyConnexion bodyConnexion;
-    public Integer id;
+    public Integer idTerrarium;
     public String date;
     public Double temperature;
     public Double humidity;
 
-    public BodyTerrariumData(BodyConnexion bodyConnexion, String date, Double temperature, Double humidity) {
+    public BodyTerrariumData(BodyConnexion bodyConnexion,Integer idTerra,  String date, Double temperature, Double humidity) {
         this.bodyConnexion = bodyConnexion;
+        this.idTerrarium = idTerra;
         this.date = date;
         this.temperature = temperature;
         this.humidity = humidity;
@@ -26,11 +27,11 @@ public class BodyTerrariumData {
     }
 
     public Integer getId() {
-        return id;
+        return idTerrarium;
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        this.idTerrarium = id;
     }
 
     public String getDate() {
