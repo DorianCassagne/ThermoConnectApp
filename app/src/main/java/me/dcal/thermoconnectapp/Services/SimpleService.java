@@ -3,6 +3,7 @@ package me.dcal.thermoconnectapp.Services;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
+import me.dcal.thermoconnectapp.Modeles.BodyAnimalData;
 import me.dcal.thermoconnectapp.Modeles.BodySpecies;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
@@ -67,4 +68,10 @@ public interface SimpleService {
 
    @POST("getLastTerrariumData")
    Call<BodyTerrariumData> getLastTerrariumData(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("deleteAnimal")
+   Call<Integer> deleteAnimal(@Body BodyAnimal bodyAnimal);
+
+   @POST("getAllAnimalData")
+   Call<List<BodyAnimalData>> getAllAnimalData(@Body BodyAnimal bodyAnimal);
 }

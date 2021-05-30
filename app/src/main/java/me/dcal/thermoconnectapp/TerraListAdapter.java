@@ -2,6 +2,7 @@ package me.dcal.thermoconnectapp;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,11 +58,38 @@ public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
             }
 
             if (temperature != null) {
-                temperature.setText(tld.getBd().getTemperature().toString());
+                if(tld.getBd() != null) {
+                    temperature.setText("Temperature:" + Math.round(tld.getBd().getTemperature()*100)/100 + "°C");
+                    if(tld.getBd().getTemperature()>tld.getBt().getTemperatureMax() || tld.getBd().getTemperature()<tld.getBt().getTemperatureMin()){
+                        temperature.setBackgroundColor(Color.RED);
+                        temperature.setTextColor(Color.WHITE);
+                    }else{
+                        temperature.setBackgroundColor(Color.GREEN);
+                        temperature.setTextColor(Color.WHITE);
+                    }
+                }else{
+                    temperature.setText("Temperature: -");
+                    temperature.setBackgroundColor(Color.LTGRAY);
+                    temperature.setTextColor(Color.WHITE);
+                }
+
             }
 
             if (humidite != null) {
-                humidite.setText(tld.getBd().getHumidity().toString());
+                if(tld.getBd() != null) {
+                    humidite.setText("Humidite:" + Math.round(tld.getBd().getHumidity()) + "%");
+                    if(tld.getBd().getHumidity()>tld.getBt().getHumidityTerrarium() || tld.getBd().getHumidity()<tld.getBt().getHumidityTerrarium()){
+                        humidite.setBackgroundColor(Color.RED);
+                        humidite.setTextColor(Color.WHITE);
+                    }else{
+                        humidite.setBackgroundColor(Color.GREEN);
+                        humidite.setTextColor(Color.WHITE);
+                    }
+                }else{
+                    humidite.setText("Humidite: -");
+                    humidite.setBackgroundColor(Color.LTGRAY);
+                    humidite.setTextColor(Color.WHITE);
+                }
             }
         }
 

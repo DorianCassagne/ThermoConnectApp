@@ -41,46 +41,7 @@ public class TerraListActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
 
-
-        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
-        ListView terraList = (ListView)findViewById(R.id.TerraList);
-        TerraListAdapter<TerraListData> arrayAdapter = new TerraListAdapter<TerraListData>(this, R.layout.terra_list_customlist);
-        terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
-                intent.putExtra("Terrarium", bt);
-                startActivity(intent);
-            }
-        });
-        list.enqueue(new Callback<List<BodyTerrarium>>() {
-            @Override
-            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
-                for(BodyTerrarium bt : response.body()){
-                    bt.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
-                    Call<BodyTerrariumData> bd = API.getInstance().simpleService.getLastTerrariumData(bt);
-                    bd.enqueue(new Callback<BodyTerrariumData>() {
-                        @Override
-                        public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
-                            arrayAdapter.add(new TerraListData(bt, response.body()));
-                        }
-
-                        @Override
-                        public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
-                            API.launchShortToast(getApplicationContext(), "KO");
-                        }
-                    });
-                }
-                terraList.setAdapter(arrayAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
-
+        generationPage();
     }
 
     @Override
@@ -118,15 +79,19 @@ public class TerraListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        generationPage();
+    }
+
+    public void generationPage(){
         Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
         ListView terraList = (ListView)findViewById(R.id.TerraList);
         TerraListAdapter<TerraListData> arrayAdapter = new TerraListAdapter<TerraListData>(this, R.layout.terra_list_customlist);
         terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
+                TerraListData tld = (TerraListData)parent.getItemAtPosition(position);
                 Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
-                intent.putExtra("Terrarium", bt);
+                intent.putExtra("Terrarium", tld.getBt());
                 startActivity(intent);
             }
         });
@@ -144,7 +109,7 @@ public class TerraListActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
-                            API.launchShortToast(getApplicationContext(), "KO");
+                            arrayAdapter.add(new TerraListData(bt, null));
                         }
                     });
                 }
@@ -158,3 +123,4 @@ public class TerraListActivity extends AppCompatActivity {
         });
     }
 }
+

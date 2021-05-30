@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content" android:orientation="vertical"
-    android:layout_width="fill_parent">
+    android:layout_width="fill_parent"
+    android:outlineSpotShadowColor="@color/red">
 
     <TableRow android:layout_width="fill_parent"
         android:id="@+id/TableRow01"
@@ -28,7 +29,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="categoryId"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:height="20sp" />
 
         <TextView android:layout_height="wrap_content"
@@ -37,6 +38,7 @@
             android:gravity="right"
             android:id="@+id/ListHumidite"
             android:text="description"
+
             android:height="20sp" />
     </TableRow>
 
