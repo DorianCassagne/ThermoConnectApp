@@ -37,7 +37,7 @@ public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
         super.add(tld);
     }
 
-    @SuppressLint("ResourceAsColor")
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -50,10 +50,13 @@ public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
 
         TerraListData tld = getItem(position);
 
+
         if (tld != null) {
             TextView name = (TextView) v.findViewById(R.id.ListeNom);
             TextView temperature = (TextView) v.findViewById(R.id.ListeTemperature);
+            temperature.setBackgroundResource(R.drawable.rounded_corner);
             TextView humidite = (TextView) v.findViewById(R.id.ListHumidite);
+            humidite.setBackgroundResource(R.drawable.rounded_corner);
 
             if (name != null) {
                 name.setText(tld.getBt().getNameTerrarium());

@@ -22,23 +22,26 @@
     </TableRow>
 
     <TableRow android:layout_height="wrap_content"
-        android:layout_width="fill_parent">
+        android:layout_width="fill_parent"
+        android:background="@drawable/rounded_corner">
 
         <TextView
             android:id="@+id/ListeTemperature"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="categoryId"
-            android:layout_weight="0.5"
-
+            android:layout_weight="1"
+            android:gravity="center"
+            android:background="@drawable/rounded_corner"
             android:height="20sp" />
 
         <TextView android:layout_height="wrap_content"
             android:layout_width="fill_parent"
             android:layout_weight="1"
-            android:gravity="right"
-            android:id="@+id/ListHumidite"
+            android:gravity="center"
 
+            android:id="@+id/ListHumidite"
+            android:background="@drawable/rounded_corner"
             android:text="description"
 
             android:height="20sp" />

@@ -3,6 +3,7 @@ package me.dcal.thermoconnectapp;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -23,6 +24,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Environment;
@@ -154,13 +156,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         descriptionperso = (TextView) findViewById(R.id.descriptionperso);
         changedescription = (TextView) findViewById(R.id.changedescription);
 
-        KeyboardVisibilityEvent.setEventListener( this.getParent(),new KeyboardVisibilityEventListener() {
+        KeyboardVisibilityEvent.setEventListener( AnimalActivity.this,new KeyboardVisibilityEventListener() {
             @Override
             public void onVisibilityChanged(boolean b) {
                 if (changedescription.getVisibility()==View.VISIBLE && !isKeyboardShown(changedescription.getRootView())) {
                     descriptionperso.setText(changedescription.getText().toString());
-                    //changedescription.setVisibility(View.GONE);
-                    descriptionauto.setVisibility(View.VISIBLE);
+                    changedescription.setVisibility(View.GONE);
+                    descriptionperso.setVisibility(View.VISIBLE);
 
                     //verification();
                 }
@@ -742,19 +744,35 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
     public void deleteAnimal(View v){
        // updateInfoVue(v);
-        Call<Integer> retour = API.getInstance().simpleService.deleteAnimal(this.bodyanimal);
-        retour.enqueue(new Callback<Integer>() {
-            @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                System.out.println("OK");
-            }
+        AlertDialog.Builder builder = new AlertDialog.Builder(AnimalActivity.this);
+        builder.setMessage("Voulez vous vraiment supprimer la fiche de "+bodyanimal.getName()+" ?\n Ceci entrainera la suppression de toutes les données.")//R.string.confirm_dialog_message
+                .setTitle("Suppression de la fiche de " + bodyanimal.getName())//R.string.confirm_dialog_title
+                .setPositiveButton("Confimer", new DialogInterface.OnClickListener() { //R.string.confirm
+                    public void onClick(DialogInterface dialog, int id) {
+                        Call<Integer> retour = API.getInstance().simpleService.deleteAnimal(bodyanimal);
+                        retour.enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                finish();
+                            }
 
-            @Override
-            public void onFailure(Call<Integer> call, Throwable t) {
-                System.out.println("KO");
-            }
-        });
-        finish();
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
+
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {//R.string.cancel
+                    public void onClick(DialogInterface dialog, int id) {
+                        // CANCEL
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.create();
+        builder.show();
+
+
     }
 
     public void setchart(){

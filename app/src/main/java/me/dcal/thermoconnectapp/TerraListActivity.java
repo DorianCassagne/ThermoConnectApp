@@ -41,34 +41,6 @@ public class TerraListActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
 
-        Call<List<BodyTerrarium>> list = API.getInstance().simpleService.listTerrarium(API.getBodyConnexion(getApplicationContext()));
-        ListView terraList = (ListView)findViewById(R.id.TerraList);
-        ArrayAdapter<BodyTerrarium> arrayAdapter = new ArrayAdapter<BodyTerrarium>(this, android.R.layout.simple_list_item_1);
-
-        terraList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BodyTerrarium bt = (BodyTerrarium)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(), TerrariumActivity.class);
-                intent.putExtra("Terrarium", bt);
-                startActivity(intent);
-            }
-        });
-        list.enqueue(new Callback<List<BodyTerrarium>>() {
-            @Override
-            public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
-                for(BodyTerrarium bt : response.body())
-                    arrayAdapter.add(bt);
-                terraList.setAdapter(arrayAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
-
-
         generationPage();
 
     }
