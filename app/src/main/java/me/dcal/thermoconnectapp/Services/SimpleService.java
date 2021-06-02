@@ -60,6 +60,12 @@ public interface SimpleService {
    @POST("modifTerrarium")
    Call<Integer> modifTerrarium(@Body BodyTerrarium bodyTerrarium);
 
+   @Multipart
+   @POST("modifAnimal")
+   Call<Integer> modifAnimal(@Part("description") BodyAnimal bodyAnimal,
+                             @Part List<MultipartBody.Part> file);
+
+
    @POST("deleteTerrarium")
    Call<Integer> deleteTerrarium(@Body BodyTerrarium bodyTerrarium);
 
@@ -78,6 +84,9 @@ public interface SimpleService {
 
    @POST("addTerrariumData")
    Call<Integer> simuSetDataTerra(@Body BodyTerrariumData bodyterrariumdata);
+
+   @POST("alive")
+   Call<Integer> isalive();
 
 
 }

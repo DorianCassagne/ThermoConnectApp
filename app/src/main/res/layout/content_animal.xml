@@ -6,156 +6,190 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:isScrollContainer="true"
-
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:isScrollContainer="true"
 
-            <ImageView
-                android:id="@+id/animalimage"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_weight="0"
-                android:visibility="visible"
-                tools:srcCompat="@tools:sample/avatars" />
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:gravity="top|center_horizontal|fill_horizontal"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/name"
+                <ImageView
+                    android:id="@+id/animalimage"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="0"
+                    android:visibility="visible"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="Name" />
+                    android:layout_marginLeft="30dp"
+                    android:gravity="top|center_horizontal|fill_horizontal"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/species"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="Species" />
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="Name" />
 
-                <TextView
-                    android:id="@+id/naissance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="Naissance" />
+                    <TextView
+                        android:id="@+id/species"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="Species" />
 
-                <TextView
-                    android:id="@+id/sexe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:text="sexe" />
+                    <TextView
+                        android:id="@+id/naissance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="Naissance" />
+
+                    <TextView
+                        android:id="@+id/sexe"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:onClick="modifSexe"
+                        android:text="sexe" />
+
+                    <Spinner
+                        android:id="@+id/changesexe"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:visibility="gone" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:gravity="center|center_horizontal|top"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/descriptionauto"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
-            <TextView
-                android:id="@+id/descriptionperso"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/barchart"
-                android:layout_width="match_parent"
-                android:layout_height="300dp">
-
-            </com.github.mikephil.charting.charts.LineChart>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/nouveaupoids"
-                android:layout_width="195dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:ems="10"
-                android:inputType="date" />
+                android:gravity="center|center_horizontal|top"
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/button3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="addWeight"
-                android:text="Ajout poids" />
+                <TextView
+                    android:id="@+id/descriptionauto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TextView" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/descriptionperso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="modifDescription"
+                    android:text="TextView" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+                <EditText
+                    android:id="@+id/changedescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:focusableInTouchMode="true"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine"
+                    android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/Suivi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Suivi alimentaire" />
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/barchart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp">
 
-            <EditText
-                android:id="@+id/suivialimentaire"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine" />
+                </com.github.mikephil.charting.charts.LineChart>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
 
-                <ListView
-                    android:id="@+id/docview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                <EditText
+                    android:id="@+id/nouveaupoids"
+                    android:layout_width="195dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:ems="10"
+                    android:inputType="date" />
 
                 <Button
-                    android:id="@+id/addfiles"
+                    android:id="@+id/button3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="addfiles"
-                    android:text="Ajout document" />
+                    android:onClick="addWeight"
+                    android:text="Ajout poids" />
 
             </LinearLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/Suivi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Suivi alimentaire" />
+
+                <EditText
+                    android:id="@+id/suivialimentaire"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ListView
+                        android:id="@+id/docview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/addfiles"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="addfiles"
+                        android:text="Ajout document" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:onClick="SaveModif"
+                android:text="Valider Modification"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

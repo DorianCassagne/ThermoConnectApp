@@ -9,20 +9,18 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
 
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,16 +29,22 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,13 +58,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyAnimalData;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
-import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -73,8 +75,9 @@ import retrofit2.Response;
 
 public class AnimalActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
 
-    LineChart pieChart;
-    TextView newWeight;
+    private final String TAG = "TextEditor";
+    private TextView mTextEditor;
+
     private List<Uri> UriTabDoc = new ArrayList<>();
     private List<Uri> UriTabImage = new ArrayList<>();
     private HashMap<String, List<Uri>> UriTab = new HashMap<>();
@@ -82,16 +85,27 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     private ArrayList<Entry> dataGraphWeight = new ArrayList<Entry>();
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
+    private static int RESULT_LOAD_IMAGE = 1;
     private static final int REQUEST_WRITE_PERMISSION = 786;
     BodyAnimal bodyanimal;
-
+    Boolean type;
+    LineChart pieChart;
+    TextView newWeight;
     TextView name;
     TextView sexe;
     TextView descriptionauto;
     TextView naissance;
     ImageView imgView;
     TextView descriptionperso;
+    TextView changedescription;
+    Button save_button;
+    TextView dateofBirth;
+    Spinner changeSexe;
+    ImageView animalimage;
 
+    Bitmap defaultPic;
+    Bitmap newPic = null;
+    Boolean picChange = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +114,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         XAxis xAxis = pieChart.getXAxis();
         xAxis.setGranularity(1);
         xAxis.setValueFormatter(new ValueFormatter(){
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("YYYY-MM-dd", Locale.FRANCE);
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd/MM/yy", Locale.FRANCE);
             @Override
             public String getFormattedValue(float value) {
                 long millis = TimeUnit.HOURS.toMillis((long) value);
@@ -114,6 +128,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
 
         this.bodyanimal.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
+
 
         addedfiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -137,6 +152,103 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         naissance = (TextView) findViewById(R.id.naissance);
         imgView = (ImageView) findViewById(R.id.animalimage);
         descriptionperso = (TextView) findViewById(R.id.descriptionperso);
+        changedescription = (TextView) findViewById(R.id.changedescription);
+
+        KeyboardVisibilityEvent.setEventListener( this.getParent(),new KeyboardVisibilityEventListener() {
+            @Override
+            public void onVisibilityChanged(boolean b) {
+                if (changedescription.getVisibility()==View.VISIBLE && !isKeyboardShown(changedescription.getRootView())) {
+                    descriptionperso.setText(changedescription.getText().toString());
+                    //changedescription.setVisibility(View.GONE);
+                    descriptionauto.setVisibility(View.VISIBLE);
+
+                    //verification();
+                }
+            }
+        });
+
+        dateofBirth = (TextView) findViewById(R.id.naissance);
+
+        changeSexe = (Spinner) findViewById(R.id.changesexe);
+        setSexe();
+
+        animalimage = (ImageView) findViewById(R.id.animalimage);
+        animalimage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                type = true;
+                requestPermission();
+
+            }
+        });
+       changeSexe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // your code here
+                sexe.setText(parentView.getItemAtPosition(position).toString());
+
+                sexe.setVisibility(View.VISIBLE);
+                changeSexe.setVisibility(View.GONE);
+                verification();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
+
+        save_button = (Button) findViewById(R.id.save);
+        save_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                //updateInfoVue(v);
+                bodyanimal.setDescription(changedescription.getText().toString());
+                Boolean sex;
+                if (picChange){
+                    if (finalimage != null){
+                        UriTabImage.add(finalimage);
+                        UriTab.put("picture", UriTabImage);
+                    }
+                }
+
+
+                if (changeSexe.getSelectedItem().toString().equals("Male")){
+                    sex = true;
+                }else if (changeSexe.getSelectedItem().toString().equals("Femelle")){
+                    sex = false;
+                }else{
+                    sex = null;
+                }
+
+                List<MultipartBody.Part> part = new ArrayList<>();
+                if (UriTab.size() > 0){
+                    part = uploadFile(UriTab);
+                }
+                bodyanimal.setSex(sex);
+                Call<Integer> retour = API.getInstance().simpleService.modifAnimal(bodyanimal,part);
+                retour.enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                        if (response.body()>=0){
+                            save_button.setVisibility(View.GONE);
+                        }else{
+                            Toast toasts = Toast.makeText(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard", Toast.LENGTH_SHORT);
+                            toasts.show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable t) {
+                        System.out.println("KO");
+                    }
+                });
+            }
+        });
+
+
 
         name.setText(this.bodyanimal.getName());
         sexe.setText((this.bodyanimal.getSex() == true ? "Male" : this.bodyanimal.getSex() == false ? "Femelle" : "NC"));
@@ -155,14 +267,32 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
 
         Button buttonLoadFile = (Button) findViewById(R.id.addfiles);
-        buttonLoadFile.setOnClickListener(new View.OnClickListener() {
+       /* buttonLoadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
 
                 requestPermission();
 
             }
-        });
+        });*/
+    }
+
+    private boolean isKeyboardShown(View rootView) {
+        /* 128dp = 32dp * 4, minimum button height 32dp and generic 4 rows soft keyboard */
+        final int SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128;
+
+        Rect r = new Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        DisplayMetrics dm = rootView.getResources().getDisplayMetrics();
+        /* heightDiff = rootView height - status bar height (r.top) - visible frame height (r.bottom - r.top) */
+        int heightDiff = rootView.getBottom() - r.bottom;
+        /* Threshold size: dp to pixels, multiply with display density */
+        boolean isKeyboardShown = heightDiff > SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD * dm.density;
+
+        Log.d(TAG, "isKeyboardShown ? " + isKeyboardShown + ", heightDiff:" + heightDiff + ", density:" + dm.density
+                + "root view height:" + rootView.getHeight() + ", rect:" + r);
+
+        return isKeyboardShown;
     }
 
     public void loadimage(){
@@ -174,10 +304,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 toast.show();
                 try {
 
-                    Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                    imgView.setImageBitmap(bitmap);
-                    Toast ff = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
-                    ff.show();
+                    defaultPic = BitmapFactory.decodeStream(response.body().byteStream());
+                    imgView.setImageBitmap(defaultPic);
 
                     //imgView.setImageBitmap(this.bodyanimal.get());
                 }
@@ -195,13 +323,85 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             }
         });
     }
+    public Boolean imagesAreEqual(Bitmap i1, Bitmap i2)
+    {
+        if (i1.getHeight() != i2.getHeight()) return false;
+        if (i1.getWidth() != i2.getWidth()) return false;
+
+        for (int y = 0; y < i1.getHeight(); ++y)
+            for (int x = 0; x < i1.getWidth(); ++x)
+                if (i1.getPixel(x, y) != i2.getPixel(x, y)) return false;
+
+        return true;
+    }
+
+    public void modifDescription(View v){
+
+        //descriptionperso.setVisibility(View.VISIBLE);
+        //changedescription.setVisibility(View.GONE);
+        changedescription.setText(descriptionperso.getText().toString());
+        descriptionperso.setVisibility(View.GONE);
+        changedescription.setVisibility(View.VISIBLE);
+        //verification();
+    }
+
+
+    public void setSexe(){String[] arraySpinner = new String[] {
+            "Male", "Femelle", "NC"
+    };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpinner);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        changeSexe.setAdapter(adapter);
+
+    }
+
+    public void modifSexe(View v){
+
+
+        //changedescription.setText(descriptionperso.getText().toString());
+        sexe.setVisibility(View.GONE);
+        changeSexe.setVisibility(View.VISIBLE);
+
+    }
+
+
+    public void verification(){
+        Boolean sex;
+
+        if (changeSexe.getSelectedItem().toString().equals("Male")){
+            sex = true;
+        }else if (changeSexe.getSelectedItem().toString().equals("Femelle")){
+            sex = false;
+        }else{
+            sex = null;
+        }
+
+        if (newPic != null){
+            picChange = !newPic.sameAs(defaultPic);
+            //newpic = imagesAreEqual(newPic,defaultPic);
+        }
+
+        if( picChange|| !(descriptionperso.getText().toString().equals(this.bodyanimal.getDescription())) || (sex == null ? sex != this.bodyanimal.getSex() : !(sex.equals(this.bodyanimal.getSex())) )) {
+
+            save_button.setVisibility(View.VISIBLE);
+        }
+        else{
+
+            save_button.setVisibility(View.INVISIBLE);
+        }
+
+    }
 
 
     public void addWeight(View v){
 
         Double weight = Double.parseDouble(newWeight.getText().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
-        String currentDateandTime = sdf.format(new Date());
+        String currentDateandTime = sdf.format(new Date())+" 00:00:00.0";
 
         BodyAnimalData body = new BodyAnimalData(this.bodyanimal.getBodyConnexion(),this.bodyanimal.getIdAnimal(), currentDateandTime,weight);
         ArrayList<Entry> data = new ArrayList<Entry>();
@@ -235,32 +435,29 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         }
 
     }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_WRITE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            openFilePicker();//do your job
-        }
-    }
 
-    public void  requestPermission() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions( new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
-        } else {
-            openFilePicker();//do your job
-        }
-    }
 
     public void  openFilePicker(){
+        if (type){
+            Intent i = new Intent(
+                    Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            );
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        try{
-            startActivityForResult(intent, 7);
-        } catch (ActivityNotFoundException e){
-            Toast.makeText(this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
+            startActivityForResult(i, RESULT_LOAD_IMAGE);
+        }else{
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            try{
+                startActivityForResult(intent, 7);
+            } catch (ActivityNotFoundException e){
+                Toast.makeText(this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
+            }
         }
+
+
+
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -321,9 +518,11 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     Uri imageUri = data.getData();
                     InputStream imageStream = getContentResolver().openInputStream(imageUri);
                     Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                    ImageView image_view = (ImageView) findViewById(R.id.imgView);
-                    image_view.setImageBitmap(selectedImage);
+                    animalimage.setImageBitmap(selectedImage);
                     finalimage = imageUri;
+                    newPic = selectedImage;
+
+                    verification();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
@@ -562,24 +761,36 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
 
         dataGraphWeight.clear();
+
         Call<List<BodyAnimalData>> data = API.getInstance().simpleService.getAllAnimalData(this.bodyanimal);
         data.enqueue(new Callback<List<BodyAnimalData>>() {
             @Override
             public void onResponse(Call<List<BodyAnimalData>> call, Response<List<BodyAnimalData>> response) {
+
                 List<BodyAnimalData> listdata = response.body();
                 Collections.sort(listdata);
+                int i = 1;
+
                 for(BodyAnimalData bd : listdata){
+
                     String time = bd.getDateAnimalData()+" 00:00:00.0";
                     //long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
                     //long test = TimeUnit.MILLISECONDS.toHours(time);
                     long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(time)));
                     dataGraphWeight.add(new Entry(now, Float.parseFloat(bd.getWeight().toString())));
                 }
-                LineDataSet datasetWeight= new LineDataSet(dataGraphWeight, "Evolution du poids(g)");
-                datasetWeight.setColor(Color.BLUE);
-                LineData data = new LineData(datasetWeight);
-                pieChart.setData(data);
-                pieChart.animateXY(0, 0);
+
+                if (dataGraphWeight.size() != 0){
+                    LineDataSet datasetWeight= new LineDataSet(dataGraphWeight, "Evolution du poids(g)");
+                    datasetWeight.setColor(Color.BLUE);
+                    LineData data = new LineData(datasetWeight);
+                    pieChart.setVisibility(View.VISIBLE);
+                    pieChart.setData(data);
+                    pieChart.animateXY(0, 0);
+                }else{
+                    pieChart.setVisibility(View.GONE);
+                }
+
             }
 
             @Override
@@ -593,5 +804,22 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         long time =  tm.getTime();
         return time;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_WRITE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openFilePicker();//do your job
+        }
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
+        } else {
+            openFilePicker();//do your job
+        }
+    }
+
 
 }

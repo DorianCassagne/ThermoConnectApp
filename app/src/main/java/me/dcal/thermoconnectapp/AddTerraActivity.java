@@ -22,7 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
 import me.dcal.thermoconnectapp.Services.API;
-import me.dcal.thermoconnectapp.Simulation.DataSimuTerra;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -215,7 +215,6 @@ public class AddTerraActivity extends AppCompatActivity {
                     }
                     else{
                         bodyTerrarium.setIdTerrarium(i);
-                        simulation();
 
                         finish();
                     }
@@ -235,27 +234,4 @@ public class AddTerraActivity extends AppCompatActivity {
         }
     }
 
-    public void simulation(){
-        Thread background = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    while(true){
-                        DataSimuTerra simu = new DataSimuTerra(bodyTerrarium);
-                        simu.simulation();
-                        try {
-                            Thread.sleep(20000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                } catch (Throwable t) {
-                    // gérer l'exception et arrêter le traitement
-                }
-            }
-        });
-
-        //Lancement de la Thread
-        background.start();
-    }
 }

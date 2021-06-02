@@ -174,29 +174,38 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 reponse.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        idanimal = response.body();
+                        int id = response.body();
+                        if (id >= 0){
+                            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
+                            String currentDateandTime = sdf.format(new Date());
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
-                        String currentDateandTime = sdf.format(new Date());
+                            BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), id,currentDateandTime, Double.parseDouble(poids.getText().toString()) );
+                            Call<Integer> reponse2= API.getInstance().simpleService.setAllAnimalData(bodydata);
+                            reponse2.enqueue(new Callback<Integer>() {
+                                @Override
+                                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                    Integer i=response.body();
+                                    if (i == 1){
+                                        finish();
+                                    }else{
+                                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                                        toast.show();
+                                    }
 
-                        BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), idanimal,currentDateandTime, Double.parseDouble(poids.getText().toString()) );
-                        Call<Integer> reponse2= API.getInstance().simpleService.setAllAnimalData(bodydata);
-                        reponse2.enqueue(new Callback<Integer>() {
-                            @Override
-                            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                Integer i=response.body();
-                                Toast toast = Toast.makeText(getApplicationContext(), i+"", Toast.LENGTH_SHORT);
-                                toast.show();
-                                finish();
-                            }
+                                }
 
-                            @Override
-                            public void onFailure(Call<Integer> call, Throwable t) {
-                                call.request().url();
-                                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                                toast.show();
-                            }
-                        });
+                                @Override
+                                public void onFailure(Call<Integer> call, Throwable t) {
+                                    call.request().url();
+                                    Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                                    toast.show();
+                                }
+                            });
+                        }else{
+                            Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+
                     }
 
                     @Override
