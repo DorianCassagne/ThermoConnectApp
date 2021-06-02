@@ -5,7 +5,11 @@ import me.dcal.thermoconnectapp.Services.BodyConnexion;
 public class BodyTerrariumData {
 
     public BodyConnexion bodyConnexion;
+
     public Integer idTerrarium;
+
+    public BodyTerrarium bodyTerrarium;
+
     public String date;
     public Double temperature;
     public Double humidity;
@@ -57,4 +61,6 @@ public class BodyTerrariumData {
     public void setHumidity(Double humidity) {
         this.humidity = humidity;
     }
+
+
 }

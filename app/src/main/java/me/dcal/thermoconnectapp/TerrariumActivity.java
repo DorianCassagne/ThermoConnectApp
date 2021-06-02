@@ -21,10 +21,13 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,10 +38,17 @@ import org.w3c.dom.Text;
 
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
@@ -53,7 +63,7 @@ import retrofit2.Response;
 
 public class TerrariumActivity extends AppCompatActivity {
 
-
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private LineChart chart;
     private BodyTerrarium bt;
     private TimePickerDialog timeMinPickerDialog;
@@ -122,61 +132,7 @@ public class TerrariumActivity extends AppCompatActivity {
         bt.setBodyConnexion(body);
 
         //On resume et liste
-        dataGraphTemperature = new ArrayList<Entry>();
-        dataGraphHumidite = new ArrayList<Entry>();
-        Call<List<BodyTerrariumData>> data = API.getInstance().simpleService.getAllTerrariumdata(bt);
-        data.enqueue(new Callback<List<BodyTerrariumData>>() {
-            @Override
-            public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
-                for(BodyTerrariumData bd : response.body()){
-                    Random r = new Random();
-                    /*//timestampToFloat(Timestamp.valueOf(bd.getDate()));
-                    //dataGraphTemperature.add(new Entry(Float.parseFloat(bd.getTemperature().toString()), timestampToFloat(Timestamp.valueOf(bd.getDate()))));
-                    //dataGraphHumidite.add(new Entry(Float.parseFloat(bd.getHumidity().toString()) ,timestampToFloat(Timestamp.valueOf(bd.getDate()))));
-                    */dataGraphTemperature.add(new Entry(timestampToFloat(Timestamp.valueOf(bd.getDate())), Float.parseFloat(bd.getTemperature().toString())));
-                    dataGraphHumidite.add(new Entry(timestampToFloat(Timestamp.valueOf(bd.getDate())), Float.parseFloat(bd.getHumidity().toString())));
-                }
-                LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
-                LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
-                datasetHumidite.setColor(Color.BLUE);
-                dataSetTemperature.setColors(Color.RED);
-                LineData data = new LineData(dataSetTemperature, datasetHumidite);
-                chart.setData(data);
-                chart.animateXY(0, 0);
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
-        Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
-        ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
-        ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
-        AnimalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BodyAnimal ba = (BodyAnimal)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(), AnimalActivity.class);
-                intent.putExtra("Animal", ba);
-                startActivity(intent);
-            }
-        });
-        list.enqueue(new Callback<List<BodyAnimal>>() {
-            @Override
-            public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
-                for(BodyAnimal ba : response.body())
-                    arrayAdapter.add(ba);
-                AnimalList.setAdapter(arrayAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyAnimal>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
-
-
+        generationAffichage();
     }
 
     @Override
@@ -215,32 +171,7 @@ public class TerrariumActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
-        ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
-        ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
-
-        AnimalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BodyAnimal ba = (BodyAnimal)parent.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(), AnimalActivity.class);
-                intent.putExtra("Animal", ba);
-                startActivity(intent);
-            }
-        });
-        list.enqueue(new Callback<List<BodyAnimal>>() {
-            @Override
-            public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
-                for(BodyAnimal ba : response.body())
-                    arrayAdapter.add(ba);
-                AnimalList.setAdapter(arrayAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<BodyAnimal>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
-            }
-        });
+        generationAffichage();
     }
 
     //Modification des valeurs
@@ -437,10 +368,117 @@ public class TerrariumActivity extends AppCompatActivity {
     }
 
     //chart
-    public float timestampToFloat(Timestamp tm){
-        float time = tm.getHours() + (float) tm.getMinutes()/60 + (float) tm.getSeconds()/3600;
+    public long timestampToFloat(Timestamp tm){
+        long time =  tm.getTime();
         return time;
     }
 
+    //Generation affichage
+    public void generationAffichage() {
+        Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
+        ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
+        ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
+        AnimalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BodyAnimal ba = (BodyAnimal)parent.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(), AnimalActivity.class);
+                intent.putExtra("Animal", ba);
+                startActivity(intent);
+            }
+        });
+        list.enqueue(new Callback<List<BodyAnimal>>() {
+            @Override
+            public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
+                for(BodyAnimal ba : response.body())
+                    arrayAdapter.add(ba);
+                AnimalList.setAdapter(arrayAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyAnimal>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter(){
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+            @Override
+            public String getFormattedValue(float value) {
+                long millis = TimeUnit.HOURS.toMillis((long) value);
+                return mFormat.format(new Date(millis));
+            }
+        });
+        dataGraphTemperature = new ArrayList<Entry>();
+        dataGraphHumidite = new ArrayList<Entry>();
+        Call<List<BodyTerrariumData>> data = API.getInstance().simpleService.getAllTerrariumdata(bt);
+        data.enqueue(new Callback<List<BodyTerrariumData>>() {
+            @Override
+            public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
+                for(BodyTerrariumData bd : response.body()){
+                    long now = TimeUnit.MILLISECONDS.toHours(timestampToFloat(Timestamp.valueOf(bd.getDate())));
+                    dataGraphTemperature.add(new Entry(now, Float.parseFloat(bd.getTemperature().toString())));
+                    dataGraphHumidite.add(new Entry(now, Float.parseFloat(bd.getHumidity().toString())));
+                }
+                LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
+                LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
+                datasetHumidite.setColor(Color.BLUE);
+                dataSetTemperature.setColors(Color.RED);
+                LineData data = new LineData(dataSetTemperature, datasetHumidite);
+                chart.setData(data);
+                chart.animateXY(0, 0);
+            }
+
+            @Override
+            public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
+                API.launchShortToast(getApplicationContext(), "KO");
+            }
+        });
+        update_graph();
+
+    }
+
+    public void update_graph(){
+        final Runnable background = new Runnable() {
+            @Override
+            public void run() {
+                dataGraphTemperature = new ArrayList<Entry>();
+                dataGraphHumidite = new ArrayList<Entry>();
+                Call<List<BodyTerrariumData>> data = API.getInstance().simpleService.getAllTerrariumdata(bt);
+                data.enqueue(new Callback<List<BodyTerrariumData>>() {
+                    @Override
+                    public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
+                        for(BodyTerrariumData bd : response.body()){
+                            long now = TimeUnit.MILLISECONDS.toHours(timestampToFloat(Timestamp.valueOf(bd.getDate())));
+                            dataGraphTemperature.add(new Entry(now, Float.parseFloat(bd.getTemperature().toString())));
+                            dataGraphHumidite.add(new Entry(now, Float.parseFloat(bd.getHumidity().toString())));
+                        }
+                        LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
+                        LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
+                        datasetHumidite.setColor(Color.BLUE);
+                        dataSetTemperature.setColors(Color.RED);
+                        LineData data = new LineData(dataSetTemperature, datasetHumidite);
+                        chart.invalidate();
+                        chart.setData(data);
+                        chart.animateXY(0, 0);
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
+                        API.launchShortToast(getApplicationContext(), "KO");
+                    }
+                });
+            }
+        };
+        final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 10, 10, TimeUnit.SECONDS);
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                beeperHandle.cancel(true);
+            }
+        }, 100 * 100, TimeUnit.DAYS);
+    }
 
 }

@@ -69,14 +69,18 @@ public interface SimpleService {
    @POST("deleteTerrarium")
    Call<Integer> deleteTerrarium(@Body BodyTerrarium bodyTerrarium);
 
-   @POST("deleteAnimal")
-   Call<Integer> deleteAnimal(@Body BodyAnimal bodyAnimal);
-
    @POST("getAllTerrariumData")
    Call<List<BodyTerrariumData>> getAllTerrariumdata(@Body BodyTerrarium bodyTerrarium);
 
+   @POST("getLastTerrariumData")
+   Call<BodyTerrariumData> getLastTerrariumData(@Body BodyTerrarium bodyTerrarium);
+
+   @POST("deleteAnimal")
+   Call<Integer> deleteAnimal(@Body BodyAnimal bodyAnimal);
+
    @POST("getAllAnimalData")
    Call<List<BodyAnimalData>> getAllAnimalData(@Body BodyAnimal bodyAnimal);
+
 
    @POST("addAnimalData")
    Call<Integer> setAllAnimalData(@Body BodyAnimalData bodyAnimaldata);
@@ -87,6 +91,5 @@ public interface SimpleService {
 
    @POST("alive")
    Call<Integer> isalive();
-
 
 }
