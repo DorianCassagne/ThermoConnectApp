@@ -178,8 +178,9 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         if (id >= 0){
                             SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
                             String currentDateandTime = sdf.format(new Date());
+                            Double weight = Double.parseDouble((!poids.getText().toString().equals("")) ?poids.getText().toString():"0.0" );
 
-                            BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), id,currentDateandTime, Double.parseDouble(poids.getText().toString()) );
+                            BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), id,currentDateandTime, weight );
                             Call<Integer> reponse2= API.getInstance().simpleService.setAllAnimalData(bodydata);
                             reponse2.enqueue(new Callback<Integer>() {
                                 @Override
@@ -454,9 +455,9 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 final String type = split[0];
                 final String folder = uri.getAuthority().split("\\.",4)[3];
 
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + folder +"/"+split[1];
-                }
+                //if ("primary".equalsIgnoreCase(type)) {
+                return Environment.getExternalStorageDirectory() + "/" + folder +"/"+split[1];
+                //}
 
                 // TODO handle non-primary volumes
             }
