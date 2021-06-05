@@ -42,7 +42,7 @@ public class AlimentationActivity extends AppCompatActivity {
     Button save;
     TextView editalim;
     TextView alimentation;
-    AlimentationAdapter<String> arrayAdapter ;
+    AlimentationAdapter<String> arrayAdapter;
     BodyAnimal bodyAnimal;
 
     String alimentationData="";
@@ -53,20 +53,25 @@ public class AlimentationActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        arrayAdapter = new AlimentationAdapter<String>(AlimentationActivity.this, R.layout.alimentation_row);
-
+        arrayAdapter = new AlimentationAdapter<String>(this, R.layout.alimentation_row);
 
         alimentationlist = (ListView) findViewById(R.id.alimentationlist);
         addalimentation = (Button) findViewById(R.id.addAlimentation);
         save = (Button) findViewById(R.id.alimSave);
-
+        bodyAnimal = (BodyAnimal) getIntent().getSerializableExtra("bodyanimal");
 
         addalimentation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-                arrayAdapter.add(formatter.format(new Date()));
-                alimentationlist.setAdapter(arrayAdapter);
+                if (alimentationData.endsWith("\\|")){
+                    alimentationData += formatter.format(new Date());
+                }else if(alimentationData.length()<2){
+                    alimentationData += formatter.format(new Date());
+                }else{
+                    alimentationData += "|"+formatter.format(new Date());
+                }
+                generationPage();
 
             }
         });
@@ -98,9 +103,6 @@ public class AlimentationActivity extends AppCompatActivity {
             }
         });
 
-
-        generationPage();
-
     }
 
     public void setAlimentationRow(String alimentationRow) {
@@ -108,8 +110,8 @@ public class AlimentationActivity extends AppCompatActivity {
 
         alimentationData += alimentationRow+";";
 
-
-        save.setVisibility(View.VISIBLE);
+        //generationPage();
+        //save.setVisibility(View.VISIBLE);
     }
 
     public void removeAlimentationRow(String alimentationRow){
@@ -173,17 +175,28 @@ public class AlimentationActivity extends AppCompatActivity {
     }
 
     public void generationPage(){
-        arrayAdapter = new AlimentationAdapter<String>(this, R.layout.alimentation_row);
 
-        bodyAnimal = (BodyAnimal) getIntent().getSerializableExtra("bodyanimal");
-        alimentationData = bodyAnimal.getFood() == null ? "" : bodyAnimal.getFood();
+
+        if (alimentationData == "")
+            alimentationData = bodyAnimal.getFood() == null ? "" : bodyAnimal.getFood();
+
         String alim = bodyAnimal.getFood();
-        if (alim != null){
-            String[] datas = alim.split(";");
+        String dataAdap = "";
+        if (alim == null ){
+            dataAdap = arrayAdapter.getData();
+        }else{
+            dataAdap = alim;
+        }
+
+        if (dataAdap != null){
+            String[] datas = dataAdap.split(";");
             for (String data : datas){
                 if (data != "")
                     arrayAdapter.add(data);
             }
+            alimentationlist.setAdapter(arrayAdapter);
+        }else if (alimentationData.length()>2){
+            arrayAdapter.add(alimentationData);
             alimentationlist.setAdapter(arrayAdapter);
         }
 

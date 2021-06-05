@@ -1,10 +1,6 @@
 package me.dcal.thermoconnectapp;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -17,22 +13,21 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
-import org.w3c.dom.Text;
-
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
-import me.dcal.thermoconnectapp.Modeles.TerraListData;
 import me.dcal.thermoconnectapp.Services.API;
 
 public class AlimentationAdapter <T> extends ArrayAdapter<String> {
     private int resourceLayout;
     private AlimentationActivity mContext;
     int pos;
+    List<AdaptaterRessource> adapterressource = new ArrayList<>();
     public AlimentationAdapter(@NonNull AlimentationActivity context, int resource) {
         super(context, resource);
         this.resourceLayout = resource;
@@ -40,9 +35,39 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
 
     }
 
+    public String getData(){
+        String data = "";
+        for (AdaptaterRessource res :adapterressource){
+            if (res.getEditalim().getText().length()>0 && !(res.getAlimentation().getText().equals(res.getEditalim().getText()))){
+                res.getAlimentation().setText(res.getEditalim().getText());
+                res.getAlimentation().setVisibility(View.VISIBLE);
+                res.getEditalim().setVisibility(View.GONE);
+
+                data = res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
+
+            }
+        }
+        return data;
+    }
+
     @Override
     public void add(@Nullable String tld) {
+        for (AdaptaterRessource res :adapterressource){
+            if (res.getEditalim().getText().length()>0 && !(res.getAlimentation().getText().equals(res.getEditalim().getText()))){
+                res.getAlimentation().setText(res.getEditalim().getText());
+                res.getAlimentation().setVisibility(View.VISIBLE);
+                res.getEditalim().setVisibility(View.GONE);
+
+                String data = res.getDatealim().getText()+"|"+res.getAlimentation().getText() ;
+
+                mContext.setAlimentationRow(data.length() >2 ? data : "" );
+
+            }
+        }
         super.add(tld);
+
+
+
     }
 
 
@@ -62,17 +87,22 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
         String date;
         String alimstr;
         date = data[0];
+
         if (data.length>1){
             alimstr = data[1];
         }else{
             alimstr = null;
         }
+
+
+
         if (tld != null || tld != "") {
             TextView datealim = (TextView) v.findViewById(R.id.date);
             TextView alimentation = (TextView) v.findViewById(R.id.alimentation);
             TextView editalim = (TextView) v.findViewById(R.id.editalim);
             Button deletealim = (Button) v.findViewById(R.id.deletealim);
 
+            adapterressource.add(new AdaptaterRessource(position, datealim, alimentation, editalim));
             deletealim.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -96,6 +126,8 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                     editalim.setVisibility(View.VISIBLE);
                 }
             });
+
+
             KeyboardVisibilityEvent.setEventListener( mContext, new KeyboardVisibilityEventListener() {
                 @Override
                 public void onVisibilityChanged(boolean b) {
@@ -106,7 +138,7 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
 
                         String data = datealim.getText()+"|"+alimentation.getText() ;
 
-                        mContext.setAlimentationRow(data.length() >2 ? data : "" );
+                        //mContext.setAlimentationRow(data.length() >2 ? data : "" );
                     }
                 }
             });
