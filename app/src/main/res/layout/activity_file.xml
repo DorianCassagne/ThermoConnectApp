@@ -5,44 +5,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.ThermoConnectApp.AppBarOverlay">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:ignore="MissingConstraints">
+            android:orientation="horizontal">
 
-            <com.github.barteksc.pdfviewer.PDFView
-                android:id="@+id/pdfview"
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layoutDirection="rtl"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/Theme.ThermoConnectApp.PopupOverlay" />
+
+            <TextView
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="bottom|end"
-                android:orientation="vertical">
-
-                <Button
-                    android:id="@+id/download"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="dowloadDocument"
-                    android:text="Télécharger" />
-
-                <Button
-                    android:id="@+id/returnbtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Retour" />
-            </LinearLayout>
 
         </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        tools:ignore="MissingConstraints"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/pdfview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/docimg"
+            tools:srcCompat="@tools:sample/avatars"
+            tools:visibility="visible"
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center" />
+
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_weight="1"
+                android:visibility="visible"
+                app:srcCompat="@android:drawable/stat_sys_download" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_weight="1"
+                app:srcCompat="@android:drawable/ic_delete" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/returnbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@android:drawable/ic_menu_revert" />
+
+
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

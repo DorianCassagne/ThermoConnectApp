@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content" android:orientation="vertical"
     android:layout_width="fill_parent"
     android:outlineSpotShadowColor="@color/red">
@@ -19,32 +20,13 @@
             android:typeface="monospace"
             android:textAlignment="center"
             android:height="40sp"/>
-    </TableRow>
 
-    <TableRow android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:background="@drawable/rounded_corner">
-
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="fill_parent"
+        <Button
+            android:id="@+id/deletefile"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="categoryId"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:background="@drawable/rounded_corner"
-            android:height="20sp" />
-
-        <TextView android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-
-            android:id="@+id/ListHumidite"
-            android:background="@drawable/rounded_corner"
-            android:text="description"
-
-            android:height="20sp" />
+            app:icon="@android:drawable/ic_delete" />
     </TableRow>
+
 
 </TableLayout>

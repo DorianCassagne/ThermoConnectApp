@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:outlineSpotShadowColor="@color/red">
+
+    <TableRow android:layout_height="wrap_content"
+        android:id="@+id/TableRow01"
+        android:layout_width="fill_parent">
+
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:height="20sp"
+            />
+
+        <TextView
+            android:id="@+id/alimentation"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:height="20sp"
+            android:gravity="center"
+             />
+
+        <EditText
+            android:id="@+id/editalim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/deletealim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:height="20sp"
+            android:layout_weight="0"
+
+            app:icon="@android:drawable/ic_delete" />
+    </TableRow>
+
+
+</TableLayout>

@@ -452,9 +452,10 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
+                final String folder = uri.getAuthority().split("\\.",4)[3];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    return Environment.getExternalStorageDirectory() + "/" + folder +"/"+split[1];
                 }
 
                 // TODO handle non-primary volumes

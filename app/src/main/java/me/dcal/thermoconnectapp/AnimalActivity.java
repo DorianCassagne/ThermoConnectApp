@@ -22,6 +22,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
+import com.wdullaer.swipeactionadapter.SwipeDirection;
 
 
 import androidx.appcompat.app.AlertDialog;
@@ -33,16 +35,21 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
@@ -54,6 +61,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +73,7 @@ import java.util.concurrent.TimeUnit;
 import me.dcal.thermoconnectapp.Modeles.BodyAnimal;
 import me.dcal.thermoconnectapp.Modeles.BodyAnimalData;
 import me.dcal.thermoconnectapp.Modeles.BodyDocument;
+import me.dcal.thermoconnectapp.Modeles.TerraListData;
 import me.dcal.thermoconnectapp.Services.API;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -88,6 +97,10 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     ListView addedfiles;
     ArrayAdapter<String> arrayAdapter;
     private static int RESULT_LOAD_IMAGE = 1;
+    private static int RESULT_LOAD_DOCUMENT = 2;
+    private static int RESULT_DELETE_DOCUMENT = 3;
+    private static int RESULT_ALIMENTATION = 4;
+
     private static final int REQUEST_WRITE_PERMISSION = 786;
     BodyAnimal bodyanimal;
     Boolean type;
@@ -96,7 +109,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     TextView name;
     TextView sexe;
     TextView descriptionauto;
-    TextView naissance;
     ImageView imgView;
     TextView descriptionperso;
     TextView changedescription;
@@ -104,15 +116,70 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     TextView dateofBirth;
     Spinner changeSexe;
     ImageView animalimage;
-
+    Button buttonLoadFile;
+    List<String> initFileList;
+    TextView species;
+    SwipeActionAdapter mAdapter;
+    Button suivialimentaire;
     Bitmap defaultPic;
     Bitmap newPic = null;
     Boolean picChange = false;
+    Boolean deleteImage = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_animal);
+
+        newWeight = (TextView) findViewById(R.id.nouveaupoids);
+        addedfiles = (ListView) findViewById(R.id.docview);
+        name = (TextView) findViewById(R.id.name);
+        sexe = (TextView) findViewById(R.id.sexe);
+        descriptionauto = (TextView) findViewById(R.id.descriptionauto);
+        imgView = (ImageView) findViewById(R.id.animalimage);
+        descriptionperso = (TextView) findViewById(R.id.descriptionperso);
+        changedescription = (TextView) findViewById(R.id.changedescription);
+        dateofBirth = (TextView) findViewById(R.id.naissance);
+        changeSexe = (Spinner) findViewById(R.id.changesexe);
+        animalimage = (ImageView) findViewById(R.id.animalimage);
         pieChart = (LineChart) findViewById(R.id.barchart);
+        save_button = (Button) findViewById(R.id.save);
+        buttonLoadFile = (Button) findViewById(R.id.addfiles);
+        species = (TextView) findViewById(R.id.species);
+        suivialimentaire = (Button) findViewById(R.id.suivialimentaire);
+
+        this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
+        initFileList = this.bodyanimal.getDocuments();
+        this.bodyanimal.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
+
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        name.setText(this.bodyanimal.getName());
+        try{
+            sexe.setText((this.bodyanimal.getSex() == true ? "Male" : this.bodyanimal.getSex() == false ? "Femelle" : "NC"));
+        }catch (NullPointerException e){
+            sexe.setText("NC");
+        }
+
+        descriptionauto.setText(this.bodyanimal.getSpecies().getDescription());
+        dateofBirth.setText(this.bodyanimal.getDateOfBirth());
+        species.setText(this.bodyanimal.getSpecies().toString());
+
+        descriptionperso.setText(this.bodyanimal.getDescription());
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setSexe();
+        loadimage();
+        setchart();
+        doclist(this.bodyanimal.getDocuments());
+
+        suivialimentaire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AlimentationActivity.class);
+                intent.putExtra("bodyanimal", bodyanimal);
+                startActivityForResult(intent, RESULT_ALIMENTATION);
+            }
+        });
+
         XAxis xAxis = pieChart.getXAxis();
         xAxis.setGranularity(1);
         xAxis.setValueFormatter(new ValueFormatter(){
@@ -124,13 +191,18 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             }
         });
 
-        newWeight = (TextView) findViewById(R.id.nouveaupoids);
-        addedfiles = (ListView) findViewById(R.id.docview);
+        KeyboardVisibilityEvent.setEventListener( this,new KeyboardVisibilityEventListener() {
+            @Override
+            public void onVisibilityChanged(boolean b) {
+                if (changedescription.getVisibility()==View.VISIBLE && !isKeyboardShown(changedescription.getRootView())) {
+                    descriptionperso.setText(changedescription.getText().toString());
+                    changedescription.setVisibility(View.GONE);
+                    descriptionperso.setVisibility(View.VISIBLE);
 
-        this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
-
-        this.bodyanimal.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
-
+                    verification();
+                }
+            }
+        });
 
         addedfiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -141,46 +213,38 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 bodyanimal.setDocuments(doc);
                 Intent intent = new Intent(getApplicationContext(), FileActivity.class);
                 intent.putExtra("bodyanimal", bodyanimal);
-                startActivity(intent);
+                startActivityForResult(intent, RESULT_DELETE_DOCUMENT);
                 //loadDocument((String)parent.getItemAtPosition(position));
             }
         });
-        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 
-        name = (TextView) findViewById(R.id.name);
-        sexe = (TextView) findViewById(R.id.sexe);
-        descriptionauto = (TextView) findViewById(R.id.descriptionauto);
-        naissance = (TextView) findViewById(R.id.naissance);
-        imgView = (ImageView) findViewById(R.id.animalimage);
-        descriptionperso = (TextView) findViewById(R.id.descriptionperso);
-        changedescription = (TextView) findViewById(R.id.changedescription);
 
-        KeyboardVisibilityEvent.setEventListener( AnimalActivity.this,new KeyboardVisibilityEventListener() {
-            @Override
-            public void onVisibilityChanged(boolean b) {
-                if (changedescription.getVisibility()==View.VISIBLE && !isKeyboardShown(changedescription.getRootView())) {
-                    descriptionperso.setText(changedescription.getText().toString());
-                    changedescription.setVisibility(View.GONE);
-                    descriptionperso.setVisibility(View.VISIBLE);
-
-                    //verification();
-                }
-            }
-        });
-
-        dateofBirth = (TextView) findViewById(R.id.naissance);
-
-        changeSexe = (Spinner) findViewById(R.id.changesexe);
-        setSexe();
-
-        animalimage = (ImageView) findViewById(R.id.animalimage);
         animalimage.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                type = true;
-                requestPermission();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(AnimalActivity.this);
+                builder.setMessage("Modification de la photo "+bodyanimal.getName()+"")//R.string.confirm_dialog_message
+                       // .setTitle("Suppression de la fiche de " + bodyanimal.getName())//R.string.confirm_dialog_title
+                        .setPositiveButton("Changer l'image", new DialogInterface.OnClickListener() { //R.string.confirm
+                            public void onClick(DialogInterface dialog, int id) {
+                                type = true;
+                                requestPermission();
+                            }
+                        })
+                        .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {//R.string.cancel
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                builder.create();
+                builder.show();
+
+
+
 
             }
         });
@@ -202,7 +266,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
         });
 
-        save_button = (Button) findViewById(R.id.save);
+
         save_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -226,9 +290,11 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 }
 
                 List<MultipartBody.Part> part = new ArrayList<>();
+
                 if (UriTab.size() > 0){
                     part = uploadFile(UriTab);
                 }
+
                 bodyanimal.setSex(sex);
                 Call<Integer> retour = API.getInstance().simpleService.modifAnimal(bodyanimal,part);
                 retour.enqueue(new Callback<Integer>() {
@@ -252,31 +318,14 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
 
 
-        name.setText(this.bodyanimal.getName());
-        sexe.setText((this.bodyanimal.getSex() == true ? "Male" : this.bodyanimal.getSex() == false ? "Femelle" : "NC"));
-        descriptionauto.setText(this.bodyanimal.getSpecies().getDescription());
-        naissance.setText(this.bodyanimal.getDateOfBirth());
-
-
-        descriptionperso.setText(this.bodyanimal.getDescription());
-
-
-        //loadDocument(null);
-        loadimage();
-        setchart();
-        doclist(this.bodyanimal.getDocuments());
-
-
-
-        Button buttonLoadFile = (Button) findViewById(R.id.addfiles);
-       /* buttonLoadFile.setOnClickListener(new View.OnClickListener() {
+        buttonLoadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
+                type = false;
                 requestPermission();
 
             }
-        });*/
+        });
     }
 
     private boolean isKeyboardShown(View rootView) {
@@ -297,13 +346,41 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         return isKeyboardShown;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.deconnexion:
+                API.setBodyConnexion(getApplicationContext(),null);
+                Intent i=new Intent(this, LoginActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        //noinspection SimplifiableIfStatement
+
+    }
+
     public void loadimage(){
         Call<ResponseBody> reponse= API.getInstance().simpleService.getImage(this.bodyanimal);
         reponse.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
-                toast.show();
+
                 try {
 
                     defaultPic = BitmapFactory.decodeStream(response.body().byteStream());
@@ -312,8 +389,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     //imgView.setImageBitmap(this.bodyanimal.get());
                 }
                 catch (Exception ex){
-                    Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast toasts = Toast.makeText(getApplicationContext(), "Erreur durant le chargement de l'image", Toast.LENGTH_SHORT);
+                    toasts.show();
                 }
             }
 
@@ -338,13 +415,9 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     }
 
     public void modifDescription(View v){
-
-        //descriptionperso.setVisibility(View.VISIBLE);
-        //changedescription.setVisibility(View.GONE);
         changedescription.setText(descriptionperso.getText().toString());
         descriptionperso.setVisibility(View.GONE);
         changedescription.setVisibility(View.VISIBLE);
-        //verification();
     }
 
 
@@ -362,12 +435,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     }
 
     public void modifSexe(View v){
-
-
-        //changedescription.setText(descriptionperso.getText().toString());
         sexe.setVisibility(View.GONE);
         changeSexe.setVisibility(View.VISIBLE);
-
     }
 
 
@@ -382,12 +451,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             sex = null;
         }
 
+
         if (newPic != null){
             picChange = !newPic.sameAs(defaultPic);
             //newpic = imagesAreEqual(newPic,defaultPic);
         }
 
-        if( picChange|| !(descriptionperso.getText().toString().equals(this.bodyanimal.getDescription())) || (sex == null ? sex != this.bodyanimal.getSex() : !(sex.equals(this.bodyanimal.getSex())) )) {
+        if( deleteImage || picChange || !(descriptionperso.getText().toString().equals(this.bodyanimal.getDescription())) || (sex == null ? sex != this.bodyanimal.getSex() : !(sex.equals(this.bodyanimal.getSex())) )) {
 
             save_button.setVisibility(View.VISIBLE);
         }
@@ -431,11 +501,27 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     }
 
     public void doclist(List<String> listdocs){
+        //DocumentAdapter<String> arrayAdapter = new DocumentAdapter<String>(this, R.layout.custom_added_files);
+        arrayAdapter.clear();
+        if (listdocs.size()==0){
+            addedfiles.setVisibility(View.GONE);
+        }else{
+            addedfiles.setVisibility(View.VISIBLE);
+        }
         for (String doc : listdocs){
             arrayAdapter.add(doc);
-            addedfiles.setAdapter(arrayAdapter);
         }
 
+        if (arrayAdapter.getCount()>0){
+            View item = arrayAdapter.getView(0, null, addedfiles);
+            item.measure(0, 0);
+            int nbitem = arrayAdapter.getCount()>3 ? 3 : arrayAdapter.getCount();
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (nbitem * item.getMeasuredHeight()));
+            addedfiles.setLayoutParams(params);
+        }
+
+
+        addedfiles.setAdapter(arrayAdapter);
     }
 
 
@@ -451,21 +537,24 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
             try{
-                startActivityForResult(intent, 7);
+                startActivityForResult(intent, RESULT_LOAD_DOCUMENT);
             } catch (ActivityNotFoundException e){
                 Toast.makeText(this, "There are no file explorer clients installed.", Toast.LENGTH_SHORT).show();
             }
+
         }
 
 
 
 
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == 7) { // for file selection
+            if (requestCode == RESULT_LOAD_DOCUMENT) { // for file selection
 //                try {
                 Uri fileuri = data.getData();
 
@@ -480,8 +569,9 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     e.printStackTrace();
                 }
 
-                arrayAdapter.add(tv1.getName());
-                addedfiles.setAdapter(arrayAdapter);
+                bodyanimal.addDocument(tv1.getName());
+                doclist(bodyanimal.getDocuments());
+
                 UriTabDoc.clear();
                 UriTabDoc.add(fileuri);
 
@@ -515,7 +605,17 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 });
 
 
-            }else {// for image selection
+            }else if (requestCode == RESULT_DELETE_DOCUMENT){
+                bodyanimal.setDocuments(initFileList);
+                List<String> doc = bodyanimal.getDocuments();
+                doc.remove(data.getStringExtra("deletefile"));
+
+                bodyanimal.setDocuments(doc);
+                doclist(bodyanimal.getDocuments());
+
+            } else if (requestCode == RESULT_ALIMENTATION){
+                bodyanimal.setFood(data.getStringExtra("alimentation"));
+            }else{// for image selection
                 try {
                     Uri imageUri = data.getData();
                     InputStream imageStream = getContentResolver().openInputStream(imageUri);
@@ -523,8 +623,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     animalimage.setImageBitmap(selectedImage);
                     finalimage = imageUri;
                     newPic = selectedImage;
-
                     verification();
+                    defaultPic = selectedImage;
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
@@ -567,11 +667,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
-
+                String folder = uri.getAuthority().split("\\.",4)[3];
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    return Environment.getExternalStorageDirectory().getPath() + "/" + split[1];
                 }
-
+                if ("home".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory().getPath() + "/" + folder +"/"+split[1];
+                }
                 // TODO handle non-primary volumes
             }
             // DownloadsProvider
@@ -700,22 +802,27 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             String key = entry.getKey();
             List<Uri> value = entry.getValue();
 
-            for (Uri fileuri : value){
-                File file = new File(getPath(getApplicationContext(), fileuri));
+            if (value == null){
 
-                // create RequestBody instance from file
-                RequestBody requestFile =
-                        RequestBody.create(
-                                MediaType.parse(getContentResolver().getType(fileuri)),
-                                file
-                        );
+            }else{
+                for (Uri fileuri : value){
+                    File file = new File(getPath(getApplicationContext(), fileuri));
 
-                // MultipartBody.Part is used to send also the actual file name
-                MultipartBody.Part body =
-                        MultipartBody.Part.createFormData(key, file.getName(), requestFile);
+                    // create RequestBody instance from file
+                    RequestBody requestFile =
+                            RequestBody.create(
+                                    MediaType.parse(getContentResolver().getType(fileuri)),
+                                    file
+                            );
 
-                parts.add(body);
+                    // MultipartBody.Part is used to send also the actual file name
+                    MultipartBody.Part body =
+                            MultipartBody.Part.createFormData(key, file.getName(), requestFile);
+
+                    parts.add(body);
+                }
             }
+
         }
 
 
@@ -792,8 +899,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 for(BodyAnimalData bd : listdata){
 
                     String time = bd.getDateAnimalData()+" 00:00:00.0";
-                    //long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
-                    //long test = TimeUnit.MILLISECONDS.toHours(time);
                     long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(time)));
                     dataGraphWeight.add(new Entry(now, Float.parseFloat(bd.getWeight().toString())));
                 }

@@ -1,7 +1,5 @@
 package me.dcal.thermoconnectapp;
 
-import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -10,15 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
-import me.dcal.thermoconnectapp.Modeles.BodyTerrariumData;
 import me.dcal.thermoconnectapp.Modeles.TerraListData;
 
 public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
@@ -52,8 +43,8 @@ public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
 
 
         if (tld != null) {
-            TextView name = (TextView) v.findViewById(R.id.ListeNom);
-            TextView temperature = (TextView) v.findViewById(R.id.ListeTemperature);
+            TextView name = (TextView) v.findViewById(R.id.docname);
+            TextView temperature = (TextView) v.findViewById(R.id.date);
             temperature.setBackgroundResource(R.drawable.rounded_corner);
             TextView humidite = (TextView) v.findViewById(R.id.ListHumidite);
             humidite.setBackgroundResource(R.drawable.rounded_corner);
@@ -64,7 +55,7 @@ public class TerraListAdapter<T> extends ArrayAdapter<TerraListData>{
 
             if (temperature != null) {
                 if(tld.getBd() != null) {
-                    temperature.setText("Temperature:" + Math.round(tld.getBd().getTemperature()*100)/100 + "°C");
+                    temperature.setText("Temperature:" + (double) Math.round(tld.getBd().getTemperature()*10)/10 + "°C");
                     if(tld.getBd().getTemperature()>tld.getBt().getTemperatureMax() || tld.getBd().getTemperature()<tld.getBt().getTemperatureMin()){
                         temperature.setBackgroundColor(Color.RED);
                         temperature.setTextColor(Color.WHITE);

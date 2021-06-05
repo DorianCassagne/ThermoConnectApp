@@ -41,6 +41,9 @@ public class BodyAnimal implements Serializable {
         this.bodyConnexion = bodyConnexion;
     }
 
+    public void addDocument(String name){
+        this.documents.add(name);
+    }
     public int getIdAnimal() {
         return idAnimal;
     }

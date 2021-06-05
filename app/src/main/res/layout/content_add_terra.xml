@@ -23,10 +23,10 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:ems="10"
-            android:onClick="cacheErreur"
+            android:hint="Nom"
             android:inputType="textPersonName"
             android:maxLength="32"
-            android:text="Nom" />
+            android:onClick="cacheErreur" />
 
         <TextView
             android:id="@+id/textView2"

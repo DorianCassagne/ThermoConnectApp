@@ -92,4 +92,7 @@ public interface SimpleService {
    @POST("alive")
    Call<Integer> isalive();
 
+   @POST("deleteDocument")
+   Call<Integer> deleteDocument(@Body BodyAnimal bodyAnimal);
+
 }
