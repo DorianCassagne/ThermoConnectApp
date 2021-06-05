@@ -277,6 +277,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     if (finalimage != null){
                         UriTabImage.add(finalimage);
                         UriTab.put("picture", UriTabImage);
+                        defaultPic = newPic;
                     }
                 }
 
@@ -543,10 +544,6 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             }
 
         }
-
-
-
-
     }
 
 
@@ -624,7 +621,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     finalimage = imageUri;
                     newPic = selectedImage;
                     verification();
-                    defaultPic = selectedImage;
+                    
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
