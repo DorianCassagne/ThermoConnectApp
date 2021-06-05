@@ -271,7 +271,10 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             @Override
             public void onClick(View arg0) {
                 //updateInfoVue(v);
-                bodyanimal.setDescription(changedescription.getText().toString());
+                if (!changedescription.getText().toString().isEmpty() && !(descriptionperso.getText().equals(changedescription.getText()))){
+                    bodyanimal.setDescription(changedescription.getText().toString());
+                }
+
                 Boolean sex;
                 if (picChange){
                     if (finalimage != null){
@@ -621,7 +624,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     finalimage = imageUri;
                     newPic = selectedImage;
                     verification();
-                    
+
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
