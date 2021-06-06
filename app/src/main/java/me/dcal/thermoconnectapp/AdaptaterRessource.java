@@ -1,5 +1,6 @@
 package me.dcal.thermoconnectapp;
 
+import android.view.View;
 import android.widget.TextView;
 
 public class AdaptaterRessource {
@@ -8,12 +9,22 @@ public class AdaptaterRessource {
     TextView datealim;
     TextView alimentation;
     TextView editalim;
+    View view;
 
-    public AdaptaterRessource(int position, TextView datealim, TextView alimentation, TextView editalim) {
+    public AdaptaterRessource(View v, int position, TextView datealim, TextView alimentation, TextView editalim) {
         this.position = position;
         this.datealim = datealim;
         this.alimentation = alimentation;
         this.editalim = editalim;
+        this.view = v;
+    }
+
+    public View getView() {
+        return view;
+    }
+
+    public void setView(View view) {
+        this.view = view;
     }
 
     public int getPosition() {

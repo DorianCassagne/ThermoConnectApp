@@ -2,6 +2,8 @@ package me.dcal.thermoconnectapp;
 
 import android.app.DatePickerDialog;
 import android.graphics.Rect;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +27,8 @@ import java.util.List;
 
 import me.dcal.thermoconnectapp.Services.API;
 
+import static java.util.stream.Collectors.toList;
+
 public class AlimentationAdapter <T> extends ArrayAdapter<String> {
     private int resourceLayout;
     private AlimentationActivity mContext;
@@ -35,39 +41,42 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
 
     }
 
+    @Nullable
+    @Override
+    public String getItem(int position) {
+        return super.getItem(position);
+    }
+
     public String getData(){
         String data = "";
+        List<String> listdata = new ArrayList<>();
         for (AdaptaterRessource res :adapterressource){
-            if (res.getEditalim().getText().length()>0 && !(res.getAlimentation().getText().equals(res.getEditalim().getText()))){
-                res.getAlimentation().setText(res.getEditalim().getText());
-                res.getAlimentation().setVisibility(View.VISIBLE);
-                res.getEditalim().setVisibility(View.GONE);
+            if (res.getAlimentation().getText().length()>0 || res.getEditalim().getText().length()>0 && !(res.getAlimentation().getText().equals(res.getEditalim().getText()))){
+                TableLayout layout = (TableLayout) res.getView();
 
-                data = res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
+                if (((TextView) layout.findViewById(R.id.alimentation)).getVisibility()==View.GONE && ((TextView) layout.findViewById(R.id.editalim)).getVisibility()==View.VISIBLE){
+                    res.getAlimentation().setText(res.getEditalim().getText());
+                    res.getAlimentation().setVisibility(View.VISIBLE);
+                    res.getEditalim().setVisibility(View.GONE);
+                }
+                String value = res.getDatealim().getText()+";"+res.getAlimentation().getText()+"|";
+                if (!(listdata.contains(value)) && !(value.contains(";|")) && !(value.startsWith(";")))
+                    listdata.add(value);
+                //data += res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
 
             }
         }
+        for (String el : listdata)
+            data += el;
+
+        if (data.endsWith("|"))
+            data = data.substring(0, data.length()-1);
         return data;
     }
 
     @Override
     public void add(@Nullable String tld) {
-        for (AdaptaterRessource res :adapterressource){
-            if (res.getEditalim().getText().length()>0 && !(res.getAlimentation().getText().equals(res.getEditalim().getText()))){
-                res.getAlimentation().setText(res.getEditalim().getText());
-                res.getAlimentation().setVisibility(View.VISIBLE);
-                res.getEditalim().setVisibility(View.GONE);
-
-                String data = res.getDatealim().getText()+"|"+res.getAlimentation().getText() ;
-
-                mContext.setAlimentationRow(data.length() >2 ? data : "" );
-
-            }
-        }
         super.add(tld);
-
-
-
     }
 
 
@@ -80,10 +89,10 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
             vi = LayoutInflater.from(mContext);
             v = vi.inflate(resourceLayout, null);
         }
-        pos = position;
+
         String tld = getItem(position);
         String[] data = new String[2];
-        data = tld.split("\\|");
+        data = tld.split(";");
         String date;
         String alimstr;
         date = data[0];
@@ -94,52 +103,73 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
             alimstr = null;
         }
 
+        List<Integer> arraypos = new ArrayList<Integer>();
+        for (AdaptaterRessource res :adapterressource){
+            arraypos.add(res.getPosition());
 
+        }
 
-        if (tld != null || tld != "") {
+        if ((tld != null || tld != "") ) {
             TextView datealim = (TextView) v.findViewById(R.id.date);
             TextView alimentation = (TextView) v.findViewById(R.id.alimentation);
             TextView editalim = (TextView) v.findViewById(R.id.editalim);
             Button deletealim = (Button) v.findViewById(R.id.deletealim);
 
-            adapterressource.add(new AdaptaterRessource(position, datealim, alimentation, editalim));
+            //if (!arraypos.contains(position)){
+                adapterressource.add(new AdaptaterRessource(v, position, datealim, alimentation, editalim));
+            //}
+
             deletealim.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String data = datealim.getText()+"|"+alimentation.getText();
+                    String data = datealim.getText()+";"+alimentation.getText();
+
+                    List<AdaptaterRessource> deletevalue = new ArrayList<>();
+
+                    for (AdaptaterRessource res :adapterressource){
+                        if (res.getPosition()==position){
+                            deletevalue.add(res);
+
+                        }
+                    }
+                    for (AdaptaterRessource elem : deletevalue)
+                        adapterressource.remove(elem);
                     mContext.removeAlimentationRow(data);
                     remove(tld);
+
                 }
             });
+
             datealim.setText(date);
             if ( alimstr != null){
                 alimentation.setText(alimstr);
+                alimentation.setVisibility(View.VISIBLE);
+                editalim.setVisibility(View.GONE);
             }else{
+                alimentation.setVisibility(View.GONE);
                 editalim.setVisibility(View.VISIBLE);
             }
-
-            alimentation.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    editalim.setText(alimentation.getText());
-                    alimentation.setVisibility(View.GONE);
-                    editalim.setVisibility(View.VISIBLE);
-                }
-            });
 
 
             KeyboardVisibilityEvent.setEventListener( mContext, new KeyboardVisibilityEventListener() {
                 @Override
                 public void onVisibilityChanged(boolean b) {
-                    if (editalim.getVisibility()==View.VISIBLE && !isKeyboardShown(editalim.getRootView())) {
+                    if (editalim.getText().length()> 0 && editalim.getVisibility()==View.VISIBLE && !isKeyboardShown(editalim.getRootView())) {
                         alimentation.setText(editalim.getText());
                         alimentation.setVisibility(View.VISIBLE);
                         editalim.setVisibility(View.GONE);
 
-                        String data = datealim.getText()+"|"+alimentation.getText() ;
-
-                        //mContext.setAlimentationRow(data.length() >2 ? data : "" );
                     }
+                }
+            });
+
+            alimentation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    editalim.setText(alimentation.getText());
+                    alimentation.setVisibility(View.GONE);
+                    editalim.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -158,7 +188,7 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                             new DatePickerDialog.OnDateSetListener() {
                                 @Override
                                 public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                    String date = year+"-"+  ((month<=9) ? Integer.parseInt("0"+month) : month) + "-" + dayOfMonth;
+                                    String date = year+"-"+  ((month<=9) ? "0"+month : month) + "-" + ((dayOfMonth<=9) ? "0"+dayOfMonth : dayOfMonth);
                                     datealim.setText(date);
                                 }
                             }, mYear, mMonth, mDay);
@@ -172,8 +202,24 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
         return v;
     }
 
-    public void calendar(){
+    public String saveData(){
+        for (AdaptaterRessource res :adapterressource){
+            if (res.getEditalim().getVisibility()==View.VISIBLE){
+                TableLayout layout = (TableLayout) res.getView();
 
+                //if (((TextView) layout.findViewById(R.id.alimentation)).getVisibility()==View.GONE && ((TextView) layout.findViewById(R.id.editalim)).getVisibility()==View.VISIBLE){
+                res.getAlimentation().setText(res.getEditalim().getText());
+                res.getAlimentation().setVisibility(View.VISIBLE);
+                res.getEditalim().setVisibility(View.GONE);
+                //}
+                String data = ";"+res.getAlimentation().getText().toString() ;
+
+                return data;
+                //data += res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
+
+            }
+        }
+        return "";
     }
     private boolean isKeyboardShown(View rootView) {
         /* 128dp = 32dp * 4, minimum button height 32dp and generic 4 rows soft keyboard */

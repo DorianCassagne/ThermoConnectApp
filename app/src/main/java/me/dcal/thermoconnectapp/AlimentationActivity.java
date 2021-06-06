@@ -63,24 +63,27 @@ public class AlimentationActivity extends AppCompatActivity {
         addalimentation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               // arrayAdapter.adapterressource.get(1);
+                alimentationData = arrayAdapter.getData();
                 SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-                if (alimentationData.endsWith("\\|")){
+                if (alimentationData.endsWith(";")){ //pas de valeur
                     alimentationData += formatter.format(new Date());
                 }else if(alimentationData.length()<2){
                     alimentationData += formatter.format(new Date());
-                }else{
+                }else{ //
                     alimentationData += "|"+formatter.format(new Date());
                 }
                 generationPage();
-
+                save.setVisibility(View.VISIBLE);
             }
         });
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<MultipartBody.Part> part = new ArrayList<>();
-
-                if (alimentationData.endsWith(";"))
+                String last = arrayAdapter.saveData();
+                alimentationData += last;
+                if (alimentationData.endsWith("|"))
                     alimentationData = alimentationData.substring(0, alimentationData.length()-1);
                 bodyAnimal.setFood(alimentationData);
                 Call<Integer> retour = API.getInstance().simpleService.modifAnimal(bodyAnimal,part);
@@ -102,32 +105,35 @@ public class AlimentationActivity extends AppCompatActivity {
                 });
             }
         });
-
+        generationPage();
     }
 
     public void setAlimentationRow(String alimentationRow) {
         // do what you want with invoiceId
 
-        alimentationData += alimentationRow+";";
-
+        alimentationData += alimentationRow;
+        bodyAnimal.setFood(alimentationData);
         //generationPage();
-        //save.setVisibility(View.VISIBLE);
+        save.setVisibility(View.VISIBLE);
     }
 
     public void removeAlimentationRow(String alimentationRow){
         if (alimentationRow.equals(alimentationData)){
             alimentationData = "";
         }else{
-            String[] data = alimentationData.split(";"+alimentationRow.replace("|", "\\|"));
+            String[] data = alimentationData.split(alimentationRow);
             alimentationData = "";
             for (int i =0; i<data.length;i++){
                 alimentationData +=data[i];
             }
-            if (alimentationData.endsWith(";")){
+            if (alimentationData.endsWith(";") || alimentationData.endsWith("|")){
                 alimentationData = alimentationData.substring(0, alimentationData.length() - 1);
             }
+            if (alimentationData.startsWith(";") || alimentationData.startsWith("|")){
+                alimentationData = alimentationData.substring(1, alimentationData.length());
+            }
         }
-
+        alimentationData = alimentationData.replace("||", "|");
         save.setVisibility(View.VISIBLE);
     }
 
@@ -170,26 +176,22 @@ public class AlimentationActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        //generationPage();
         super.onResume();
-        generationPage();
+
     }
 
     public void generationPage(){
 
 
         if (alimentationData == "")
-            alimentationData = bodyAnimal.getFood() == null ? "" : bodyAnimal.getFood();
+            alimentationData = bodyAnimal.getFood() != null ? bodyAnimal.getFood() : arrayAdapter.getData();
 
-        String alim = bodyAnimal.getFood();
-        String dataAdap = "";
-        if (alim == null ){
-            dataAdap = arrayAdapter.getData();
-        }else{
-            dataAdap = alim;
-        }
-
-        if (dataAdap != null){
-            String[] datas = dataAdap.split(";");
+        arrayAdapter.clear();
+        arrayAdapter.adapterressource.clear();
+        alimentationlist.setAdapter(arrayAdapter);
+        if (alimentationData != null){
+            String[] datas = alimentationData.split("\\|");
             for (String data : datas){
                 if (data != "")
                     arrayAdapter.add(data);
