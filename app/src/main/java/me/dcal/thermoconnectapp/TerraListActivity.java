@@ -99,6 +99,7 @@ public class TerraListActivity extends AppCompatActivity {
         list.enqueue(new Callback<List<BodyTerrarium>>() {
             @Override
             public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
+
                 for(BodyTerrarium bt : response.body()){
                     bt.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
                     Call<BodyTerrariumData> bd = API.getInstance().simpleService.getLastTerrariumData(bt);

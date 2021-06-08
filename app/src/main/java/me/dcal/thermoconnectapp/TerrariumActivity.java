@@ -1,6 +1,7 @@
 package me.dcal.thermoconnectapp;
 
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -186,6 +188,7 @@ public class TerrariumActivity extends AppCompatActivity {
         Intent i=new Intent(this, AddAnimalActivity.class);
         i.putExtra("idterra", this.bt.getIdTerrarium());
         startActivity(i);
+
     }
 
     @Override
@@ -371,20 +374,38 @@ public class TerrariumActivity extends AppCompatActivity {
 
     //Suppression du terrarium
     public void deleteTerrarium(View v){
-        updateInfoVue(v);
-        Call<Integer> retour = API.getInstance().simpleService.deleteTerrarium(bt);
-        retour.enqueue(new Callback<Integer>() {
-            @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                System.out.println("OK");
-            }
+        AlertDialog.Builder builder = new AlertDialog.Builder(TerrariumActivity.this);
+        builder.setMessage("Voulez vous vraiment supprimer le terrarium : "+bt.getNameTerrarium()+" ?\n Ceci entrainera la suppression de toutes les données associés ainsi que les animaux.")//R.string.confirm_dialog_message
+                .setTitle("Suppression de la fiche de " + bt.getNameTerrarium())//R.string.confirm_dialog_title
+                .setPositiveButton("Confimer", new DialogInterface.OnClickListener() { //R.string.confirm
+                    public void onClick(DialogInterface dialog, int id) {
+                        updateInfoVue(v);
+                        Call<Integer> retour = API.getInstance().simpleService.deleteTerrarium(bt);
+                        retour.enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                System.out.println("OK");
+                            }
 
-            @Override
-            public void onFailure(Call<Integer> call, Throwable t) {
-                System.out.println("KO");
-            }
-        });
-        finish();
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
+                                updateInfoVue(v);
+                                System.out.println("KO");
+                            }
+                        });
+                        finish();
+                    }
+                })
+                .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {//R.string.cancel
+                    public void onClick(DialogInterface dialog, int id) {
+                        updateInfoVue(v);
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.create();
+        builder.show();
+
+
     }
 
     //chart
@@ -410,13 +431,27 @@ public class TerrariumActivity extends AppCompatActivity {
         list.enqueue(new Callback<List<BodyAnimal>>() {
             @Override
             public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
-                if(response.body().size() < 4) {
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (response.body().size()  * 150));
-                    AnimalList.setLayoutParams(params);
+
+                if (response.body() != null){
+                    for(BodyAnimal ba : response.body())
+                        arrayAdapter.add(ba);
+
+                    if (arrayAdapter.getCount()>0){
+                        View item = arrayAdapter.getView(0, null, AnimalList);
+                        item.measure(0, 0);
+                        int nbitem = arrayAdapter.getCount()>4 ? 4 : arrayAdapter.getCount();
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (nbitem * item.getMeasuredHeight()));
+                        AnimalList.setLayoutParams(params);
+                        AnimalList.setVisibility(View.VISIBLE);
+                    }else if (arrayAdapter.getCount()==0){
+                        AnimalList.setVisibility(View.GONE);
+                    }
+
+
+
+                    AnimalList.setAdapter(arrayAdapter);
                 }
-                for(BodyAnimal ba : response.body())
-                    arrayAdapter.add(ba);
-                AnimalList.setAdapter(arrayAdapter);
+
             }
 
             @Override
