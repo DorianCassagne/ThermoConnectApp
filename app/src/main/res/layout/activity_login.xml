@@ -35,7 +35,7 @@
             android:onClick="cacheErreur"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:hint="email"
+            android:hint="Login"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -46,7 +46,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginRight="30dp"
             android:ems="10"
-            android:hint="password"
+            android:hint="Password"
             android:inputType="textPassword"
             android:maxLength="32"
             android:onClick="cacheErreur" />

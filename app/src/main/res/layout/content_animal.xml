@@ -8,12 +8,13 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:isScrollContainer="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:isScrollContainer="true"
 
             android:orientation="vertical">
 
@@ -30,8 +31,16 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     app:civ_border_width="1dp"
+                    android:visibility="gone"
                     app:civ_border_color="#7DCEA0"/>
 
+
+                <TextView
+                    android:id="@+id/imageempty"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:gravity="center"
+                    android:text="Cliquez pour ajouter une image" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

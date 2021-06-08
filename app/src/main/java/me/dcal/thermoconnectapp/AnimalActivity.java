@@ -125,6 +125,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
     Bitmap newPic = null;
     Boolean picChange = false;
     Boolean deleteImage = false;
+    TextView imageempty;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,6 +147,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         buttonLoadFile = (Button) findViewById(R.id.addfiles);
         species = (TextView) findViewById(R.id.species);
         suivialimentaire = (Button) findViewById(R.id.suivialimentaire);
+        imageempty = (TextView) findViewById(R.id.imageempty);
 
         this.bodyanimal  = (BodyAnimal) getIntent().getSerializableExtra("Animal");
         initFileList = this.bodyanimal.getDocuments();
@@ -170,6 +172,29 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         loadimage();
         setchart();
         doclist(this.bodyanimal.getDocuments());
+
+        imageempty.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(AnimalActivity.this);
+                builder.setMessage("Modification de la photo "+bodyanimal.getName()+"")//R.string.confirm_dialog_message
+                        // .setTitle("Suppression de la fiche de " + bodyanimal.getName())//R.string.confirm_dialog_title
+                        .setPositiveButton("Changer l'image", new DialogInterface.OnClickListener() { //R.string.confirm
+                            public void onClick(DialogInterface dialog, int id) {
+                                type = true;
+                                requestPermission();
+                            }
+                        })
+                        .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {//R.string.cancel
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                builder.create();
+                builder.show();
+            }
+        });
 
         suivialimentaire.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -387,8 +412,16 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
                 try {
 
-                    defaultPic = BitmapFactory.decodeStream(response.body().byteStream());
-                    imgView.setImageBitmap(defaultPic);
+                    if (response.body().contentLength()>0){
+                        defaultPic = BitmapFactory.decodeStream(response.body().byteStream());
+                        imgView.setImageBitmap(defaultPic);
+                        imageempty.setVisibility(View.GONE);
+                        imgView.setVisibility(View.VISIBLE);
+                    }else{
+                        imageempty.setVisibility(View.VISIBLE);
+                        imgView.setVisibility(View.GONE);
+                    }
+
 
                     //imgView.setImageBitmap(this.bodyanimal.get());
                 }
@@ -623,6 +656,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     animalimage.setImageBitmap(selectedImage);
                     finalimage = imageUri;
                     newPic = selectedImage;
+                    imgView.setVisibility(View.VISIBLE);
+                    imageempty.setVisibility(View.GONE);
                     verification();
 
                 } catch (FileNotFoundException e) {

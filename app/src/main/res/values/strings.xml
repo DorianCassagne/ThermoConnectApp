@@ -21,7 +21,7 @@
     <string name="title_activity_terrarium">Terrarium</string>
     <string name="title_activity_animal">Fiche animal</string>
     <string name="title_activity_add_terra">AddTerraActivity</string>
-    <string name="title_activity_add_animal">AddAnimalActivity</string>
+    <string name="title_activity_add_animal">Ajout d\'un animal</string>
 
 
 

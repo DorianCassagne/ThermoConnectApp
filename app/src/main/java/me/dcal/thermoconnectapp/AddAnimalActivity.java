@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,7 +14,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 
@@ -21,7 +24,11 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -86,6 +93,9 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         setSpecies();
         setSexe();
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         idterra  = (int) getIntent().getSerializableExtra("idterra");
 
         ImageView img = (ImageView) findViewById(R.id.imgView);
@@ -134,90 +144,113 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         buttoncreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                if (finalimage != null){
-                    UriTabImage.add(finalimage);
-                    UriTab.put("picture", UriTabImage);
-                }
-                if (UriTabDoc.size() >0){
-                    UriTab.put("files", UriTabDoc);
-                }
+                if (name.getText().toString().equals("")){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddAnimalActivity.this);
+                    builder.setMessage("veuillez spécifier le nom de l'animal")//R.string.confirm_dialog_message
+                            // .setTitle("Suppression de la fiche de " + bodyanimal.getName())//R.string.confirm_dialog_title
+                            .setPositiveButton("Ajouter un nom", new DialogInterface.OnClickListener() { //R.string.confirm
+                                public void onClick(DialogInterface dialog, int id) {
+                                    name.requestFocus();
+                                    name.postDelayed(new Runnable(){
+                                                     @Override public void run(){
+                                                         InputMethodManager keyboard=(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                                                         keyboard.showSoftInput(name,0);
+                                                     }
+                                                 }
+                                            ,200);
+                                }
+                            });
+
+                    // Create the AlertDialog object and return it
+                    builder.create();
+                    builder.show();
+                }else {
 
 
-                List<String> documents = new ArrayList<>();
-                Boolean sex = true;
-                if (sexspinner.getSelectedItem().toString().equals("Male")){
-                    sex = true;
-                }else if (sexspinner.getSelectedItem().toString().equals("Male")){
-                    sex = false;
-                }else{
-                    sex = null;
-                }
+                    if (finalimage != null) {
+                        UriTabImage.add(finalimage);
+                        UriTab.put("picture", UriTabImage);
+                    }
+                    if (UriTabDoc.size() > 0) {
+                        UriTab.put("files", UriTabDoc);
+                    }
+
+
+                    List<String> documents = new ArrayList<>();
+                    Boolean sex = true;
+                    if (sexspinner.getSelectedItem().toString().equals("Male")) {
+                        sex = true;
+                    } else if (sexspinner.getSelectedItem().toString().equals("Male")) {
+                        sex = false;
+                    } else {
+                        sex = null;
+                    }
 
 //((TextView) findViewById(R.id.naissance)).getText().toString()
-                bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
-                                , idterra
-                                , (BodySpecies) speciesspinner.getSelectedItem()
-                                ,name.getText().toString()
-                                ,sex
-                                , ((TextView) findViewById(R.id.naissance)).getText().toString()
-                        ,commentaire.getText().toString()
-                        ,null
-                        ,0
-                , documents);
+                    bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
+                            , idterra
+                            , (BodySpecies) speciesspinner.getSelectedItem()
+                            , name.getText().toString()
+                            , sex
+                            , ((TextView) findViewById(R.id.naissance)).getText().toString()
+                            , commentaire.getText().toString()
+                            , null
+                            , 0
+                            , documents);
 
-                List<MultipartBody.Part> part = new ArrayList<>();
-                if (UriTab.size() > 0){
-                    part = uploadFile(UriTab);
-                }
+                    List<MultipartBody.Part> part = new ArrayList<>();
+                    if (UriTab.size() > 0) {
+                        part = uploadFile(UriTab);
+                    }
 
-                Call<Integer> reponse= API.getInstance().simpleService.ajoutAnimal(bodyAnimal,part);
-                reponse.enqueue(new Callback<Integer>() {
-                    @Override
-                    public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        int id = response.body();
-                        if (id >= 0){
-                            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
-                            String currentDateandTime = sdf.format(new Date());
-                            Double weight = Double.parseDouble((!poids.getText().toString().equals("")) ?poids.getText().toString():"0.0" );
+                    Call<Integer> reponse = API.getInstance().simpleService.ajoutAnimal(bodyAnimal, part);
+                    reponse.enqueue(new Callback<Integer>() {
+                        @Override
+                        public void onResponse(Call<Integer> call, Response<Integer> response) {
+                            int id = response.body();
+                            if (id >= 0) {
+                                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
+                                String currentDateandTime = sdf.format(new Date());
+                                Double weight = Double.parseDouble((!poids.getText().toString().equals("")) ? poids.getText().toString() : "0.0");
 
-                            BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), id,currentDateandTime, weight );
-                            Call<Integer> reponse2= API.getInstance().simpleService.setAllAnimalData(bodydata);
-                            reponse2.enqueue(new Callback<Integer>() {
-                                @Override
-                                public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                    Integer i=response.body();
-                                    if (i == 1){
-                                        finish();
-                                    }else{
+                                BodyAnimalData bodydata = new BodyAnimalData(bodyAnimal.getBodyConnexion(), id, currentDateandTime, weight);
+                                Call<Integer> reponse2 = API.getInstance().simpleService.setAllAnimalData(bodydata);
+                                reponse2.enqueue(new Callback<Integer>() {
+                                    @Override
+                                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                        Integer i = response.body();
+                                        if (i == 1) {
+                                            finish();
+                                        } else {
+                                            Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                                            toast.show();
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Integer> call, Throwable t) {
+                                        call.request().url();
                                         Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
                                         toast.show();
                                     }
+                                });
+                            } else {
+                                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                                toast.show();
+                            }
 
-                                }
+                        }
 
-                                @Override
-                                public void onFailure(Call<Integer> call, Throwable t) {
-                                    call.request().url();
-                                    Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                                    toast.show();
-                                }
-                            });
-                        }else{
+                        @Override
+                        public void onFailure(Call<Integer> call, Throwable t) {
+                            call.request().url();
                             Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
                             toast.show();
                         }
+                    });
 
-                    }
-
-                    @Override
-                    public void onFailure(Call<Integer> call, Throwable t) {
-                        call.request().url();
-                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-                });
-
-
+                }
 
             }
         });
@@ -241,6 +274,35 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                     }, mYear, mMonth, mDay);
             datePickerDialog.show();
         }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.deconnexion:
+                API.setBodyConnexion(getApplicationContext(),null);
+                Intent i=new Intent(this, LoginActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        //noinspection SimplifiableIfStatement
+
+    }
 
     public void setSpecies(){
 
@@ -343,6 +405,7 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                     ImageView image_view = (ImageView) findViewById(R.id.imgView);
                     image_view.setImageBitmap(selectedImage);
                     finalimage = imageUri;
+                    image_view.setVisibility(View.VISIBLE);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
