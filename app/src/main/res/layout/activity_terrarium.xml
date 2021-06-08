@@ -45,8 +45,55 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
-        
+        android:orientation="horizontal"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:onClick="afficherInfoTerra"
+            android:id="@+id/InfoButton">
+            <TextView
+                android:textColor="@color/vert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Information"
+                android:id="@+id/textInfoButton"/>
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/info_vert"
+                android:id="@+id/imageInfoButton">
+
+            </ImageView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@color/vert"
+            android:orientation="vertical"
+            android:onClick="afficherGraphTerra"
+            android:id="@+id/GraphButton"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Graphique"
+                android:textColor="@color/white"
+                android:id="@+id/textGraphButton"/>
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/graph_blanc"
+                android:id="@+id/imageGraphButton"></ImageView>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
