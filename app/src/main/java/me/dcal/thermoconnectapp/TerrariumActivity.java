@@ -7,41 +7,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 
-import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.snackbar.Snackbar;
+import com.github.mikephil.charting.utils.EntryXComparator;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
-import org.w3c.dom.Text;
 
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -64,7 +59,8 @@ import retrofit2.Response;
 public class TerrariumActivity extends AppCompatActivity {
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private LineChart chart;
+    private LineChart chartTemperature;
+    private LineChart chartHumidite;
     private BodyTerrarium bt;
     private TimePickerDialog timeMinPickerDialog;
     private TimePickerDialog timeMaxPickerDialog;
@@ -79,8 +75,21 @@ public class TerrariumActivity extends AppCompatActivity {
     private TextView heureMinTerrarium;
     private TextView heureMaxTerrarium;
     private Button save_button;
+    private ScrollView infoView;
+    private LinearLayout graphView;
+    private LinearLayout infoButton;
+    private LinearLayout graphButton;
+    private TextView textInfoButton;
+    private TextView textGraphButton;
+    private ImageView imageInfoButton;
+    private ImageView imageGraphButton;
     private ArrayList<Entry> dataGraphTemperature;
     private ArrayList<Entry> dataGraphHumidite;
+    private TextView textGraphHumidite;
+    private TextView textGraphTemperature;
+    private BodyTerrariumData lastdata;
+    private TextView updateTemperature;
+    private TextView updateHumidite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +102,11 @@ public class TerrariumActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
 
-
-
         //Init
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
         TitleTerrariumEdit = (EditText)findViewById(R.id.TitleTerrariumEdit);
-        chart = (LineChart)findViewById(R.id.barchart);
+        chartTemperature = (LineChart)findViewById(R.id.barchartTemperature);
+        chartHumidite = (LineChart)findViewById(R.id.barchartHumidite);
         temperatureMin = (TextView)findViewById(R.id.TemperatureFroidTerrarium);
         minPicker = (NumberPicker)findViewById(R.id.TemperatureFroidTerrariumEdit);
         temperatureMax = (TextView)findViewById(R.id.TemperatureChaudTerrarium);
@@ -108,6 +116,18 @@ public class TerrariumActivity extends AppCompatActivity {
         heureMinTerrarium = (TextView)findViewById(R.id.HeureMinTerrarium);
         heureMaxTerrarium = (TextView)findViewById(R.id.HeureMaxTerrarium);
         save_button = (Button)findViewById(R.id.save_button);
+        infoView = (ScrollView)findViewById(R.id.infoView);
+        infoButton = (LinearLayout)findViewById(R.id.InfoButton);
+        textInfoButton =(TextView)findViewById(R.id.textInfoButton);
+        imageInfoButton = (ImageView)findViewById(R.id.imageInfoButton);
+        graphView = (LinearLayout)findViewById(R.id.graphView);
+        graphButton = (LinearLayout)findViewById(R.id.GraphButton);
+        textGraphButton =(TextView)findViewById(R.id.textGraphButton);
+        imageGraphButton = (ImageView)findViewById(R.id.imageGraphButton);
+        textGraphHumidite = (TextView)findViewById(R.id.textGraphHumidite);
+        textGraphTemperature = (TextView)findViewById(R.id.textGraphTemperature);
+        updateTemperature = (TextView)findViewById(R.id.updateTemperature);
+        updateHumidite = (TextView)findViewById(R.id.updateHumidite);
 
         //Setup Value
         TitleTerrariumEdit.setText(bt.getNameTerrarium());
@@ -390,6 +410,10 @@ public class TerrariumActivity extends AppCompatActivity {
         list.enqueue(new Callback<List<BodyAnimal>>() {
             @Override
             public void onResponse(Call<List<BodyAnimal>> call, Response<List<BodyAnimal>> response) {
+                if(response.body().size() < 4) {
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) (response.body().size()  * 150));
+                    AnimalList.setLayoutParams(params);
+                }
                 for(BodyAnimal ba : response.body())
                     arrayAdapter.add(ba);
                 AnimalList.setAdapter(arrayAdapter);
@@ -401,39 +425,44 @@ public class TerrariumActivity extends AppCompatActivity {
             }
         });
 
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new ValueFormatter(){
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+        Call<BodyTerrariumData> info = API.getInstance().simpleService.getLastTerrariumData(bt);
+        info.enqueue(new Callback<BodyTerrariumData>() {
             @Override
-            public String getFormattedValue(float value) {
-                long millis = TimeUnit.HOURS.toMillis((long) value);
-                return mFormat.format(new Date(millis));
-            }
-        });
-        dataGraphTemperature = new ArrayList<Entry>();
-        dataGraphHumidite = new ArrayList<Entry>();
-        Call<List<BodyTerrariumData>> data = API.getInstance().simpleService.getAllTerrariumdata(bt);
-        data.enqueue(new Callback<List<BodyTerrariumData>>() {
-            @Override
-            public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
-                for(BodyTerrariumData bd : response.body()){
-                    long now = TimeUnit.MILLISECONDS.toHours(timestampToFloat(Timestamp.valueOf(bd.getDate())));
-                    dataGraphTemperature.add(new Entry(now, Float.parseFloat(bd.getTemperature().toString())));
-                    dataGraphHumidite.add(new Entry(now, Float.parseFloat(bd.getHumidity().toString())));
-                }
-                LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
-                LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
-                datasetHumidite.setColor(Color.BLUE);
-                dataSetTemperature.setColors(Color.RED);
-                LineData data = new LineData(dataSetTemperature, datasetHumidite);
-                chart.setData(data);
-                chart.animateXY(0, 0);
+            public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
+                lastdata = response.body();
+                textGraphHumidite.setText("Humidité: " + lastdata.getHumidity().toString() + "%");
+                textGraphTemperature.setText("Temperature: " + lastdata.getTemperature().toString() + "°C");
             }
 
             @Override
-            public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
+            public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
+
+            }
+        });
+
+        XAxis xAxisHumidite = chartHumidite.getXAxis();
+        xAxisHumidite.setDrawGridLines(true);
+        //xAxisHumidite.setGranularity(0.01f);
+        xAxisHumidite.setAvoidFirstLastClipping(false);
+        xAxisHumidite.setValueFormatter(new ValueFormatter(){
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+            @Override
+            public String getFormattedValue(float value) {
+                long millis = TimeUnit.SECONDS.toMillis((long) value);
+                return mFormat.format(new Date(millis));
+            }
+        });
+
+        XAxis xAxisTemperature = chartTemperature.getXAxis();
+        xAxisTemperature.setDrawGridLines(true);
+        //xAxisTemperature.setGranularity(0.2f);
+        xAxisTemperature.setAvoidFirstLastClipping(true);
+        xAxisTemperature.setValueFormatter(new ValueFormatter(){
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+            @Override
+            public String getFormattedValue(float value) {
+                long millis = TimeUnit.SECONDS.toMillis((long) value);
+                return mFormat.format(new Date(millis));
             }
         });
         update_graph();
@@ -451,18 +480,24 @@ public class TerrariumActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
                         for(BodyTerrariumData bd : response.body()){
-                            long now = TimeUnit.MILLISECONDS.toHours(timestampToFloat(Timestamp.valueOf(bd.getDate())));
+                            long now = TimeUnit.MILLISECONDS.toSeconds(timestampToFloat(Timestamp.valueOf(bd.getDate())));
                             dataGraphTemperature.add(new Entry(now, Float.parseFloat(bd.getTemperature().toString())));
                             dataGraphHumidite.add(new Entry(now, Float.parseFloat(bd.getHumidity().toString())));
                         }
+                        dataGraphHumidite.sort(new EntryXComparator());
+                        dataGraphTemperature.sort(new EntryXComparator());
                         LineDataSet dataSetTemperature = new LineDataSet(dataGraphTemperature, "Evolution de la temperature(°C)");
                         LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
                         datasetHumidite.setColor(Color.BLUE);
                         dataSetTemperature.setColors(Color.RED);
-                        LineData data = new LineData(dataSetTemperature, datasetHumidite);
-                        chart.invalidate();
-                        chart.setData(data);
-                        chart.animateXY(0, 0);
+                        chartHumidite.invalidate();
+                        LineData dataHumidite = new LineData(datasetHumidite);
+                        chartHumidite.setData(dataHumidite);
+                        chartHumidite.animateXY(0, 0);
+                        chartTemperature.invalidate();
+                        LineData dataTemperature = new LineData(dataSetTemperature);
+                        chartTemperature.setData(dataTemperature);
+                        chartTemperature.animateXY(0,0);
                     }
 
                     @Override
@@ -470,15 +505,79 @@ public class TerrariumActivity extends AppCompatActivity {
                         API.launchShortToast(getApplicationContext(), "KO");
                     }
                 });
+                Call<BodyTerrariumData> info = API.getInstance().simpleService.getLastTerrariumData(bt);
+                info.enqueue(new Callback<BodyTerrariumData>() {
+                    @Override
+                    public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
+                        /*if(lastdata.getTemperature() - response.body().getTemperature() > 0){
+                            updateTemperature.setText("+" + (lastdata.getTemperature() - response.body().getTemperature()));
+                            updateTemperature.setTextColor(Color.GREEN);
+                        }else if(lastdata.getTemperature() - response.body().getTemperature() < 0){
+                            updateTemperature.setText("-" + (lastdata.getTemperature() - response.body().getTemperature()));
+                            updateTemperature.setTextColor(Color.RED);
+                        }else{
+                            updateTemperature.setText("0");
+                            updateTemperature.setTextColor(Color.LTGRAY);
+                        }
+
+                        if(lastdata.getHumidity() - response.body().getHumidity() > 0){
+                            updateHumidite.setText("+" + (lastdata.getHumidity() - response.body().getHumidity()));
+                            updateHumidite.setTextColor(Color.GREEN);
+                        }else if(lastdata.getHumidity() - response.body().getHumidity() < 0){
+                            updateHumidite.setText("-" + (lastdata.getHumidity() - response.body().getHumidity()));
+                            updateHumidite.setTextColor(Color.RED);
+                        }else{
+                            updateHumidite.setText("0");
+                            updateHumidite.setTextColor(Color.LTGRAY);
+                        }*/
+                        lastdata = response.body();
+                        textGraphHumidite.setText("Humidité: " + lastdata.getHumidity().toString() + "%");
+                        textGraphTemperature.setText("Temperature: " + lastdata.getTemperature().toString() + "°C");
+                    }
+
+                    @Override
+                    public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
+
+                    }
+                });
+
             }
         };
-        final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 10, 10, TimeUnit.SECONDS);
+        final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 1, 2, TimeUnit.SECONDS);
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
                 beeperHandle.cancel(true);
             }
-        }, 100 * 100, TimeUnit.DAYS);
+        }, 10 * 10, TimeUnit.DAYS);
     }
 
+    public void afficherGraphTerra(View view) {
+        //Cacher information et afficher graph
+        infoView.setVisibility(View.GONE);
+        graphView.setVisibility(View.VISIBLE);
+
+        //Modifier bouton
+        infoButton.setBackgroundResource(R.color.vert);
+        imageInfoButton.setImageResource(R.drawable.info_blanc);
+        textInfoButton.setTextColor(Color.WHITE);
+
+        graphButton.setBackgroundColor(Color.TRANSPARENT);
+        imageGraphButton.setImageResource(R.drawable.graph_vert);
+        textGraphButton.setTextColor(Color.rgb(75, 237, 145));
+    }
+
+    public void afficherInfoTerra(View view) {
+        infoView.setVisibility(View.VISIBLE);
+        graphView.setVisibility(View.GONE);
+
+        //Modifier bouton
+        graphButton.setBackgroundResource(R.color.vert);
+        imageGraphButton.setImageResource(R.drawable.graph_blanc);
+        textGraphButton.setTextColor(Color.WHITE);
+
+        infoButton.setBackgroundColor(Color.TRANSPARENT);
+        imageInfoButton.setImageResource(R.drawable.info_vert);
+        textInfoButton.setTextColor(Color.rgb(75, 237, 145));
+    }
 }
