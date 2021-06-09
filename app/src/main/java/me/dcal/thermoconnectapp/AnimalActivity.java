@@ -523,8 +523,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 //dataGraphWeight.add(new Entry(now, Float.parseFloat(newWeight.getText().toString())));
                 setchart();
                // pieChart.setData();
-                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
-                toast.show();
+
             }
 
             @Override
@@ -619,12 +618,12 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                         try {
 
 
-                            Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(getApplicationContext(), "Document ajouté", Toast.LENGTH_SHORT);
                             toast.show();
                             //imgView.setImageBitmap(this.bodyanimal.get());
                         }
                         catch (Exception ex){
-                            Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
+                            Toast toasts = Toast.makeText(getApplicationContext(), "Erreur lors de l'envoi du document au serveur", Toast.LENGTH_SHORT);
                             toasts.show();
                         }
                     }
@@ -632,7 +631,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     @Override
                     public void onFailure(Call<Integer> call, Throwable t) {
                         call.request().url();
-                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getApplicationContext(), "Une erreur est survenue veillez réessayer plus tard", Toast.LENGTH_LONG);
                         toast.show();
                     }
                 });
@@ -662,12 +661,10 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Une erreur est survenue veuillez réessayer plus tard", Toast.LENGTH_LONG).show();
                 }
             }
 
-        } else {
-            Toast.makeText(getApplicationContext(), "You haven't picked Image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -698,7 +695,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
 
             // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
+            if (isExternalStorageDocument(uri) || isDownloadsDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -709,6 +706,9 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 if ("home".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory().getPath() + "/" + folder +"/"+split[1];
                 }
+                if ("raw".equalsIgnoreCase(type)) {
+                    return split[1];
+                }
                 // TODO handle non-primary volumes
             }
             // DownloadsProvider
@@ -716,7 +716,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id)
+                        Uri.parse("raw:/storage/emulated/0/Download/"), Long.valueOf(id) // content://downloads/public_downloads
                 );
 
                 return getDataColumn(context, contentUri, null, null);
@@ -841,20 +841,25 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
             }else{
                 for (Uri fileuri : value){
-                    File file = new File(getPath(getApplicationContext(), fileuri));
+                    try{
+                        File file = new File(getPath(getApplicationContext(), fileuri));
 
-                    // create RequestBody instance from file
-                    RequestBody requestFile =
-                            RequestBody.create(
-                                    MediaType.parse(getContentResolver().getType(fileuri)),
-                                    file
-                            );
+                        // create RequestBody instance from file
+                        RequestBody requestFile =
+                                RequestBody.create(
+                                        MediaType.parse(getContentResolver().getType(fileuri)),
+                                        file
+                                );
 
-                    // MultipartBody.Part is used to send also the actual file name
-                    MultipartBody.Part body =
-                            MultipartBody.Part.createFormData(key, file.getName(), requestFile);
+                        // MultipartBody.Part is used to send also the actual file name
+                        MultipartBody.Part body =
+                                MultipartBody.Part.createFormData(key, file.getName(), requestFile);
 
-                    parts.add(body);
+                        parts.add(body);
+                    }catch (NullPointerException e){
+                        Toast.makeText(getApplicationContext(), "Erreur lors du chargement de l'image", Toast.LENGTH_LONG).show();
+                    }
+
                 }
             }
 
@@ -953,7 +958,8 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
             @Override
             public void onFailure(Call<List<BodyAnimalData>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
+                pieChart.setVisibility(View.GONE);
+                API.launchShortToast(getApplicationContext(), "Une erreur est intervenu durant le chargement des données du graphique, veuillez réessayer plus tard");
             }
         });
     }
