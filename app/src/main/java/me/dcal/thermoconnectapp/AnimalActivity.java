@@ -507,32 +507,34 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
 
     public void addWeight(View v){
+        if (newWeight.getText().toString().length()>0){
+            Double weight = Double.parseDouble(newWeight.getText().toString());
+            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
+            String currentDateandTime = sdf.format(new Date())+" 00:00:00.0";
 
-        Double weight = Double.parseDouble(newWeight.getText().toString());
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd", Locale.getDefault());
-        String currentDateandTime = sdf.format(new Date())+" 00:00:00.0";
+            BodyAnimalData body = new BodyAnimalData(this.bodyanimal.getBodyConnexion(),this.bodyanimal.getIdAnimal(), currentDateandTime,weight);
+            ArrayList<Entry> data = new ArrayList<Entry>();
 
-        BodyAnimalData body = new BodyAnimalData(this.bodyanimal.getBodyConnexion(),this.bodyanimal.getIdAnimal(), currentDateandTime,weight);
-        ArrayList<Entry> data = new ArrayList<Entry>();
+            Call<Integer> reponse= API.getInstance().simpleService.setAllAnimalData(body);
+            reponse.enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
+                    //dataGraphWeight.add(new Entry(now, Float.parseFloat(newWeight.getText().toString())));
+                    setchart();
+                    // pieChart.setData();
 
-        Call<Integer> reponse= API.getInstance().simpleService.setAllAnimalData(body);
-        reponse.enqueue(new Callback<Integer>() {
-            @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
-                //dataGraphWeight.add(new Entry(now, Float.parseFloat(newWeight.getText().toString())));
-                setchart();
-               // pieChart.setData();
+                }
 
-            }
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    call.request().url();
+                    Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            });
+        }
 
-            @Override
-            public void onFailure(Call<Integer> call, Throwable t) {
-                call.request().url();
-                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                toast.show();
-            }
-        });
 
     }
 

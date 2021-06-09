@@ -71,7 +71,7 @@ public class API {
         }
     }
     public static final void getImageLogin(ImageView imageView){
-        Uri uri=Uri.parse(urlImageLogin+"?id="+Math.random()*1000000);
+        Uri uri=Uri.parse(produrlBaseRetrofit+"/pic"+"?id="+Math.random()*1000000);
         Glide.with(imageView).load(uri).apply(new RequestOptions().placeholder(R.drawable.loading).error(R.drawable.errorconnexion)).into(imageView);
     }
     public static final API getInstance(){
