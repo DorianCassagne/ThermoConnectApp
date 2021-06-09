@@ -7,17 +7,19 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <ScrollView
+        android:id="@+id/infoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:id="@+id/infoView">
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
 
         <LinearLayout
-            android:onClick="updateInfoVue"
             android:id="@+id/screen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:onClick="updateInfoVue"
             android:orientation="vertical">
 
             <LinearLayout
@@ -31,47 +33,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:onClick="ChangerTitre"
                     android:text="Terrarium"
-                    android:textSize="30dp"
-                    android:onClick="ChangerTitre"/>
+                    android:textSize="30dp" />
 
                 <EditText
                     android:id="@+id/TitleTerrariumEdit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textSize="30dp"
                     android:text="Terrarium"
-                    android:visibility="gone"/>
+                    android:textSize="30dp"
+                    android:visibility="gone" />
             </LinearLayout>
-
-
-
-
-
-
-            <ListView
-                android:id="@+id/AnimalList"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="1dp"
-                android:layout_gravity="top"
-                android:smoothScrollbar="true"
-                android:nestedScrollingEnabled="true"/>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="ajouterAnimal"
-                android:text="Ajouter Animal" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal"
+                android:layout_margin="5dp"
                 android:gravity="center"
-                android:layout_margin="5dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -83,8 +65,8 @@
                     android:id="@+id/TemperatureChaudTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="temperature"
-                    android:onClick="modiftemperaturemax"/>
+                    android:onClick="modiftemperaturemax"
+                    android:text="temperature" />
 
                 <NumberPicker
                     android:id="@+id/TemperatureChaudTerrariumEdit"
@@ -97,9 +79,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal"
+                android:layout_margin="5dp"
                 android:gravity="center"
-                android:layout_margin="5dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -111,8 +93,8 @@
                     android:id="@+id/TemperatureFroidTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="temperature"
-                    android:onClick="modiftemperaturemin"/>
+                    android:onClick="modiftemperaturemin"
+                    android:text="temperature" />
 
                 <NumberPicker
                     android:id="@+id/TemperatureFroidTerrariumEdit"
@@ -125,9 +107,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="horizontal"
+                android:layout_margin="5dp"
                 android:gravity="center"
-                android:layout_margin="5dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -139,8 +121,8 @@
                     android:id="@+id/HumiditéTerrarium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Humidité"
-                    android:onClick="modifhumidite"/>
+                    android:onClick="modifhumidite"
+                    android:text="Humidité" />
 
                 <NumberPicker
                     android:id="@+id/HumiditéTerrariumEdit"
@@ -153,8 +135,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Eclairage:"
-                android:layout_margin="5dp"/>
+                android:layout_margin="5dp"
+                android:text="Eclairage:" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -177,18 +159,40 @@
                     android:onClick="clickTimeMax"
                     android:text="20:00" />
             </LinearLayout>
+
             <Button
                 android:id="@+id/save_button"
-                android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
                 android:onClick="SaveModif"
                 android:text="Valider Modification"
-                android:layout_gravity="center"
-                android:visibility="invisible"/>
+                android:visibility="gone" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/barchart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"></com.github.mikephil.charting.charts.LineChart>
+
+            <ListView
+                android:id="@+id/AnimalList"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_gravity="top"
+                android:layout_marginTop="1dp"
+                android:nestedScrollingEnabled="true"
+                android:smoothScrollbar="true" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="ajouterAnimal"
+                android:text="Ajouter Animal" />
 
         </LinearLayout>
     </ScrollView>
+
     <LinearLayout
         android:id="@+id/graphView"
         android:layout_width="match_parent"
@@ -234,10 +238,7 @@
                 android:id="@+id/updateHumidite"/>
         </LinearLayout>
 
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/barchartHumidite"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"></com.github.mikephil.charting.charts.LineChart>
+
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

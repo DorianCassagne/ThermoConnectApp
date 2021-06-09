@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -62,7 +61,7 @@ public class TerrariumActivity extends AppCompatActivity {
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private LineChart chartTemperature;
-    private LineChart chartHumidite;
+    private LineChart chart;
     private BodyTerrarium bt;
     private TimePickerDialog timeMinPickerDialog;
     private TimePickerDialog timeMaxPickerDialog;
@@ -108,7 +107,7 @@ public class TerrariumActivity extends AppCompatActivity {
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
         TitleTerrariumEdit = (EditText)findViewById(R.id.TitleTerrariumEdit);
         chartTemperature = (LineChart)findViewById(R.id.barchartTemperature);
-        chartHumidite = (LineChart)findViewById(R.id.barchartHumidite);
+        chart = (LineChart)findViewById(R.id.barchart);
         temperatureMin = (TextView)findViewById(R.id.TemperatureFroidTerrarium);
         minPicker = (NumberPicker)findViewById(R.id.TemperatureFroidTerrariumEdit);
         temperatureMax = (TextView)findViewById(R.id.TemperatureChaudTerrarium);
@@ -475,24 +474,11 @@ public class TerrariumActivity extends AppCompatActivity {
             }
         });
 
-        XAxis xAxisHumidite = chartHumidite.getXAxis();
+        XAxis xAxisHumidite = chart.getXAxis();
         xAxisHumidite.setDrawGridLines(true);
         //xAxisHumidite.setGranularity(0.01f);
-        xAxisHumidite.setAvoidFirstLastClipping(false);
+        xAxisHumidite.setAvoidFirstLastClipping(true);
         xAxisHumidite.setValueFormatter(new ValueFormatter(){
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
-            @Override
-            public String getFormattedValue(float value) {
-                long millis = TimeUnit.SECONDS.toMillis((long) value);
-                return mFormat.format(new Date(millis));
-            }
-        });
-
-        XAxis xAxisTemperature = chartTemperature.getXAxis();
-        xAxisTemperature.setDrawGridLines(true);
-        //xAxisTemperature.setGranularity(0.2f);
-        xAxisTemperature.setAvoidFirstLastClipping(true);
-        xAxisTemperature.setValueFormatter(new ValueFormatter(){
             private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
             @Override
             public String getFormattedValue(float value) {
@@ -525,14 +511,10 @@ public class TerrariumActivity extends AppCompatActivity {
                         LineDataSet datasetHumidite = new LineDataSet(dataGraphHumidite, "Evolution de l'humidité(%)");
                         datasetHumidite.setColor(Color.BLUE);
                         dataSetTemperature.setColors(Color.RED);
-                        chartHumidite.invalidate();
-                        LineData dataHumidite = new LineData(datasetHumidite);
-                        chartHumidite.setData(dataHumidite);
-                        chartHumidite.animateXY(0, 0);
-                        chartTemperature.invalidate();
-                        LineData dataTemperature = new LineData(dataSetTemperature);
-                        chartTemperature.setData(dataTemperature);
-                        chartTemperature.animateXY(0,0);
+                        chart.invalidate();
+                        LineData dataHumidite = new LineData(datasetHumidite, dataSetTemperature);
+                        chart.setData(dataHumidite);
+                        chart.animateXY(0, 0);
                     }
 
                     @Override
@@ -540,42 +522,6 @@ public class TerrariumActivity extends AppCompatActivity {
                         API.launchShortToast(getApplicationContext(), "KO");
                     }
                 });
-                Call<BodyTerrariumData> info = API.getInstance().simpleService.getLastTerrariumData(bt);
-                info.enqueue(new Callback<BodyTerrariumData>() {
-                    @Override
-                    public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
-                        /*if(lastdata.getTemperature() - response.body().getTemperature() > 0){
-                            updateTemperature.setText("+" + (lastdata.getTemperature() - response.body().getTemperature()));
-                            updateTemperature.setTextColor(Color.GREEN);
-                        }else if(lastdata.getTemperature() - response.body().getTemperature() < 0){
-                            updateTemperature.setText("-" + (lastdata.getTemperature() - response.body().getTemperature()));
-                            updateTemperature.setTextColor(Color.RED);
-                        }else{
-                            updateTemperature.setText("0");
-                            updateTemperature.setTextColor(Color.LTGRAY);
-                        }
-
-                        if(lastdata.getHumidity() - response.body().getHumidity() > 0){
-                            updateHumidite.setText("+" + (lastdata.getHumidity() - response.body().getHumidity()));
-                            updateHumidite.setTextColor(Color.GREEN);
-                        }else if(lastdata.getHumidity() - response.body().getHumidity() < 0){
-                            updateHumidite.setText("-" + (lastdata.getHumidity() - response.body().getHumidity()));
-                            updateHumidite.setTextColor(Color.RED);
-                        }else{
-                            updateHumidite.setText("0");
-                            updateHumidite.setTextColor(Color.LTGRAY);
-                        }*/
-                        lastdata = response.body();
-                        textGraphHumidite.setText("Humidité: " + lastdata.getHumidity().toString() + "%");
-                        textGraphTemperature.setText("Temperature: " + lastdata.getTemperature().toString() + "°C");
-                    }
-
-                    @Override
-                    public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
-
-                    }
-                });
-
             }
         };
         final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 1, 2, TimeUnit.SECONDS);
