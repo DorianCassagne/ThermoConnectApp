@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventList
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -81,16 +83,21 @@ public class AlimentationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 List<MultipartBody.Part> part = new ArrayList<>();
-                String last = arrayAdapter.saveData();
-                alimentationData += last;
+
+                alimentationData = arrayAdapter.getData();
+
                 if (alimentationData.endsWith("|"))
                     alimentationData = alimentationData.substring(0, alimentationData.length()-1);
+                if (alimentationData.endsWith(";")){
+                    alimentationData = alimentationData.substring(0, alimentationData.length()-12);
+                }
                 bodyAnimal.setFood(alimentationData);
                 Call<Integer> retour = API.getInstance().simpleService.modifAnimal(bodyAnimal,part);
                 retour.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
                         if (response.body()>=0){
+                            generationPage();
                             save.setVisibility(View.GONE);
                         }else{
                             Toast toasts = Toast.makeText(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard", Toast.LENGTH_SHORT);
@@ -121,6 +128,7 @@ public class AlimentationActivity extends AppCompatActivity {
         if (alimentationRow.equals(alimentationData)){
             alimentationData = "";
         }else{
+
             String[] data = alimentationData.split(alimentationRow);
             alimentationData = "";
             for (int i =0; i<data.length;i++){
@@ -196,6 +204,14 @@ public class AlimentationActivity extends AppCompatActivity {
                 if (data != "")
                     arrayAdapter.add(data);
             }
+            arrayAdapter.sort(new Comparator<String>() {
+                @Override
+                public int compare(String lhs, String rhs) {
+                    String date1 = lhs.split(";")[0];
+                    String date2 = rhs.split(";")[0];
+                    return date1.compareTo(date2);   //or whatever your sorting algorithm
+                }
+            });
             alimentationlist.setAdapter(arrayAdapter);
         }else if (alimentationData.length()>2){
             arrayAdapter.add(alimentationData);

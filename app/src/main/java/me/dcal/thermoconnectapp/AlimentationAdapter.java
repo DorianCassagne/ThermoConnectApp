@@ -123,7 +123,9 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                 @Override
                 public void onClick(View v) {
                     String data = datealim.getText()+";"+alimentation.getText();
-
+                    if (data.endsWith(";")){
+                        data = data.substring(0, data.length()-1);
+                    }
                     List<AdaptaterRessource> deletevalue = new ArrayList<>();
 
                     for (AdaptaterRessource res :adapterressource){
@@ -190,6 +192,21 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                                 public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                                     String date = year+"-"+  ((month<=9) ? "0"+month : month) + "-" + ((dayOfMonth<=9) ? "0"+dayOfMonth : dayOfMonth);
                                     datealim.setText(date);
+                                    String value = getItem(position);
+                                    String[] data = value.split(";");
+                                    String newvalue = "";
+                                    if (!date.equals(data[0])){
+                                        if (data.length>1){
+                                            newvalue = date +";"+data[1];
+                                        }else{
+                                            newvalue = date ;
+                                        }
+                                        mContext.save.setVisibility(View.VISIBLE);
+                                        remove(value);
+                                        add(newvalue);
+
+                                    }
+
                                 }
                             }, mYear, mMonth, mDay);
                     datePickerDialog.show();
