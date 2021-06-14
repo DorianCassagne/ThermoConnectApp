@@ -222,31 +222,26 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                                         if (i == 1) {
                                             finish();
                                         } else {
-                                            Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                                            toast.show();
+                                            API.launchShortToast(getApplicationContext(), "Erreur lors de l'ajout du poids de l'animal");
+
                                         }
 
                                     }
 
                                     @Override
                                     public void onFailure(Call<Integer> call, Throwable t) {
-                                        call.request().url();
-                                        Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                                        toast.show();
+                                        API.launchShortToast(getApplicationContext(), "Erreur lors de l'ajout du poids de l'animal");
                                     }
                                 });
                             } else {
-                                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                                toast.show();
+                                API.launchShortToast(getApplicationContext(), "Erreur lors de la création de l'animal");
                             }
 
                         }
 
                         @Override
                         public void onFailure(Call<Integer> call, Throwable t) {
-                            call.request().url();
-                            Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                            toast.show();
+                            API.launchShortToast(getApplicationContext(), "Erreur lors de la création de l'animal");
                         }
                     });
 
@@ -328,14 +323,11 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 // Apply the adapter to the spinner
                 speciesspinner.setAdapter(adapter);
 
-                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
-                toast.show();
             }
 
             @Override
             public void onFailure(Call<List<BodySpecies>> call, Throwable t) {
-                Toast toast = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
-                toast.show();
+                API.launchShortToast(getApplicationContext(), "Erreur lors du charement des espece");
             }
 
         });
@@ -407,13 +399,10 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                     finalimage = imageUri;
                     image_view.setVisibility(View.VISIBLE);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+                    API.launchShortToast(getApplicationContext(), "Erreur lors de la selection de l'image");
                 }
             }
 
-        } else {
-            Toast.makeText(getApplicationContext(), "You haven't picked Image", Toast.LENGTH_LONG).show();
         }
 
     }
@@ -512,14 +501,20 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
 
             // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
+            if (isExternalStorageDocument(uri)|| isDownloadsDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
                 final String folder = uri.getAuthority().split("\\.",4)[3];
 
                 //if ("primary".equalsIgnoreCase(type)) {
-                return Environment.getExternalStorageDirectory() + "/" + folder +"/"+split[1];
+                if ("home".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory().getPath() + "/" + folder +"/"+split[1];
+                }else if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory().getPath()  +"/"+split[1];
+                } else if ("raw".equalsIgnoreCase(type)) {
+                    return split[1];
+                }
                 //}
 
                 // TODO handle non-primary volumes
@@ -529,7 +524,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id)
+                       // Uri.parse("content://downloads/public_downloads"), Long.valueOf(id)
+                        Uri.parse("raw:/storage/emulated/0/Download/"), Long.valueOf(id)
                 );
 
                 return getDataColumn(context, contentUri, null, null);
