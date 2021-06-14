@@ -52,7 +52,6 @@ import retrofit2.http.Body;
 public class FileActivity extends AppCompatActivity  implements Serializable {
     PDFView pdfView;
     FloatingActionButton download;
-    FloatingActionButton returnbtn;
     InputStream data ;
     InputStream save;
     File outputDir;
@@ -77,7 +76,6 @@ public class FileActivity extends AppCompatActivity  implements Serializable {
 
         pdfView =  findViewById(R.id.pdfview);
         download = (FloatingActionButton) findViewById(R.id.download);
-        returnbtn = (FloatingActionButton) findViewById(R.id.returnbtn);
         docimg = (ImageView)findViewById(R.id.docimg);
         deleteDocument = (FloatingActionButton) findViewById(R.id.delete);
 
@@ -103,12 +101,7 @@ public class FileActivity extends AppCompatActivity  implements Serializable {
                 }
             }
         });
-        returnbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                finish();
-            }
-        });
+
 
         deleteDocument.setOnClickListener(new View.OnClickListener() {
             @Override

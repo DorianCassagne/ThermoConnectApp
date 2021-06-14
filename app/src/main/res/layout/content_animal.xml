@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:isScrollContainer="true">
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -223,10 +224,10 @@
                         android:id="@+id/docview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
+                        android:nestedScrollingEnabled="true"
+                        android:smoothScrollbar="true"
                         android:layout_gravity="top"
-                        android:layout_marginTop="1dp"
-                        android:smoothScrollbar="true" />
+                        android:layout_marginTop="1dp" />
 
                     <Button
                         android:id="@+id/addfiles"

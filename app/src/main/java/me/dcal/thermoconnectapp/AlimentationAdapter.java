@@ -62,7 +62,7 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                 String value = res.getDatealim().getText()+";"+res.getAlimentation().getText()+"|";
                 if (!(listdata.contains(value)) && !(value.contains(";|")) && !(value.startsWith(";")))
                     listdata.add(value);
-                //data += res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
+
 
             }
         }
@@ -160,7 +160,7 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
                         alimentation.setText(editalim.getText());
                         alimentation.setVisibility(View.VISIBLE);
                         editalim.setVisibility(View.GONE);
-
+                        mContext.save.setVisibility(View.VISIBLE);
                     }
                 }
             });
@@ -219,25 +219,7 @@ public class AlimentationAdapter <T> extends ArrayAdapter<String> {
         return v;
     }
 
-    public String saveData(){
-        for (AdaptaterRessource res :adapterressource){
-            if (res.getEditalim().getVisibility()==View.VISIBLE){
-                TableLayout layout = (TableLayout) res.getView();
 
-                //if (((TextView) layout.findViewById(R.id.alimentation)).getVisibility()==View.GONE && ((TextView) layout.findViewById(R.id.editalim)).getVisibility()==View.VISIBLE){
-                res.getAlimentation().setText(res.getEditalim().getText());
-                res.getAlimentation().setVisibility(View.VISIBLE);
-                res.getEditalim().setVisibility(View.GONE);
-                //}
-                String data = ";"+res.getAlimentation().getText().toString() ;
-
-                return data;
-                //data += res.getDatealim().getText()+"|"+res.getAlimentation().getText()+";" ;
-
-            }
-        }
-        return "";
-    }
     private boolean isKeyboardShown(View rootView) {
         /* 128dp = 32dp * 4, minimum button height 32dp and generic 4 rows soft keyboard */
         final int SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128;
