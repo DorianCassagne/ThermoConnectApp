@@ -247,7 +247,7 @@
                 android:layout_marginTop="10dp"
                 android:onClick="SaveModif"
                 android:text="Valider Modification"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>

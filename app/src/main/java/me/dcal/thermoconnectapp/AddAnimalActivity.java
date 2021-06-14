@@ -510,8 +510,9 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                 //if ("primary".equalsIgnoreCase(type)) {
                 if ("home".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory().getPath() + "/" + folder +"/"+split[1];
-                }
-                if ("raw".equalsIgnoreCase(type)) {
+                }else if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory().getPath()  +"/"+split[1];
+                } else if ("raw".equalsIgnoreCase(type)) {
                     return split[1];
                 }
                 //}
@@ -523,7 +524,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id)
+                       // Uri.parse("content://downloads/public_downloads"), Long.valueOf(id)
+                        Uri.parse("raw:/storage/emulated/0/Download/"), Long.valueOf(id)
                 );
 
                 return getDataColumn(context, contentUri, null, null);
