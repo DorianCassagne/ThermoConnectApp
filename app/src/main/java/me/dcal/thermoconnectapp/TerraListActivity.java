@@ -12,10 +12,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.Comparator;
 import java.util.List;
 
 import me.dcal.thermoconnectapp.Modeles.BodyTerrarium;
@@ -30,6 +32,8 @@ import retrofit2.Response;
 
 public class TerraListActivity extends AppCompatActivity {
 
+    private TextView errorMessage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,7 @@ public class TerraListActivity extends AppCompatActivity {
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
         Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
         toast.show();
-
+        errorMessage = (TextView)findViewById(R.id.erreurMessage);
         generationPage();
 
     }
@@ -99,7 +103,19 @@ public class TerraListActivity extends AppCompatActivity {
         list.enqueue(new Callback<List<BodyTerrarium>>() {
             @Override
             public void onResponse(Call<List<BodyTerrarium>> call, Response<List<BodyTerrarium>> response) {
-
+                errorMessage.setVisibility(View.GONE);
+                List<BodyTerrarium> lbt = response.body();
+                lbt.sort(new Comparator<BodyTerrarium>() {
+                    @Override
+                    public int compare(BodyTerrarium o1, BodyTerrarium o2) {
+                        if(o1.getIdTerrarium()>o2.getIdTerrarium())
+                            return 1;
+                        else if(o1.getIdTerrarium() < o2.getIdTerrarium())
+                            return -1;
+                        else
+                            return 0;
+                    }
+                });
                 for(BodyTerrarium bt : response.body()){
                     bt.setBodyConnexion(API.getBodyConnexion(getApplicationContext()));
                     Call<BodyTerrariumData> bd = API.getInstance().simpleService.getLastTerrariumData(bt);
@@ -120,7 +136,7 @@ public class TerraListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<BodyTerrarium>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
+                errorMessage.setVisibility(View.VISIBLE);
             }
         });
     }
