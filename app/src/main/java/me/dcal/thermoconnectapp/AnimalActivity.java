@@ -204,7 +204,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 startActivityForResult(intent, RESULT_ALIMENTATION);
             }
         });
-
+        pieChart.getDescription().setEnabled(false);
         XAxis xAxis = pieChart.getXAxis();
         xAxis.setGranularity(1);
         xAxis.setValueFormatter(new ValueFormatter(){
@@ -329,17 +329,19 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 retour.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if (response.body()>=0){
+                        if (response.body()>0){
                             save_button.setVisibility(View.GONE);
-                        }else{
-                            Toast toasts = Toast.makeText(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard", Toast.LENGTH_SHORT);
-                            toasts.show();
+                        }else if (response.body()==0){
+                            API.launchShortToast(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard");
+                        }
+                        else if (response.body()==-1){
+                            API.launchShortToast(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Integer> call, Throwable t) {
-                        System.out.println("KO");
+                        API.launchShortToast(getApplicationContext(), "Erreur durant la mise à jour veuillez essayer plus tard");
                     }
                 });
             }
@@ -426,16 +428,13 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     //imgView.setImageBitmap(this.bodyanimal.get());
                 }
                 catch (Exception ex){
-                    Toast toasts = Toast.makeText(getApplicationContext(), "Erreur durant le chargement de l'image", Toast.LENGTH_SHORT);
-                    toasts.show();
+                    API.launchShortToast(getApplicationContext(), "Erreur durant le chargement de l'image");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                call.request().url();
-                Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                toast.show();
+                API.launchShortToast(getApplicationContext(), "Erreur durant le chargement de l'image");
             }
         });
     }
@@ -519,18 +518,20 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             reponse.enqueue(new Callback<Integer>() {
                 @Override
                 public void onResponse(Call<Integer> call, Response<Integer> response) {
-                    long now = TimeUnit.MILLISECONDS.toHours( timestampToFloat(Timestamp.valueOf(currentDateandTime)));
-                    //dataGraphWeight.add(new Entry(now, Float.parseFloat(newWeight.getText().toString())));
-                    setchart();
-                    // pieChart.setData();
+                    if (response.body()>0){
+                        setchart();
+                    }else{
+                        API.launchShortToast(getApplicationContext(), "Erreur durant l'ajout du poids veuillez réessayer plus tard");
+                    }
+
 
                 }
 
                 @Override
                 public void onFailure(Call<Integer> call, Throwable t) {
-                    call.request().url();
-                    Toast toast = Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_LONG);
-                    toast.show();
+
+                    API.launchShortToast(getApplicationContext(), "Erreur durant l'ajout du poids veuillez réessayer plus tard");
+
                 }
             });
         }
@@ -616,25 +617,16 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 reponse.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-
-                        try {
-
-
-                            Toast toast = Toast.makeText(getApplicationContext(), "Document ajouté", Toast.LENGTH_SHORT);
-                            toast.show();
-                            //imgView.setImageBitmap(this.bodyanimal.get());
-                        }
-                        catch (Exception ex){
-                            Toast toasts = Toast.makeText(getApplicationContext(), "Erreur lors de l'envoi du document au serveur", Toast.LENGTH_SHORT);
-                            toasts.show();
+                        if (response.body()>=0){
+                            API.launchShortToast(getApplicationContext(), "Document ajouté");
+                        }else{
+                            API.launchShortToast(getApplicationContext(), "Erreur lors de l'envoi du document au serveur");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Integer> call, Throwable t) {
-                        call.request().url();
-                        Toast toast = Toast.makeText(getApplicationContext(), "Une erreur est survenue veillez réessayer plus tard", Toast.LENGTH_LONG);
-                        toast.show();
+                        API.launchShortToast(getApplicationContext(), "Une erreur est survenue veillez réessayer plus tard");
                     }
                 });
 
@@ -662,8 +654,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                     verification();
 
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Une erreur est survenue veuillez réessayer plus tard", Toast.LENGTH_LONG).show();
+                    API.launchShortToast(getApplicationContext(), "Une erreur est survenue veillez réessayer plus tard");
                 }
             }
 
@@ -859,7 +850,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
 
                         parts.add(body);
                     }catch (NullPointerException e){
-                        Toast.makeText(getApplicationContext(), "Erreur lors du chargement de l'image", Toast.LENGTH_LONG).show();
+                        API.launchShortToast(getApplicationContext(), "Erreur lors du chargement de l'image");
                     }
 
                 }
@@ -902,12 +893,17 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                         retour.enqueue(new Callback<Integer>() {
                             @Override
                             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                finish();
+                                if (response.body()>0){
+                                    finish();
+                                }else{
+                                    API.launchShortToast(getApplicationContext(), "Erreur lors de la suppression de l'animal");
+                                }
+
                             }
 
                             @Override
                             public void onFailure(Call<Integer> call, Throwable t) {
-
+                                API.launchShortToast(getApplicationContext(), "Erreur lors de la suppression de l'animal");
                             }
                         });
                     }
@@ -933,6 +929,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
         data.enqueue(new Callback<List<BodyAnimalData>>() {
             @Override
             public void onResponse(Call<List<BodyAnimalData>> call, Response<List<BodyAnimalData>> response) {
+
 
                 List<BodyAnimalData> listdata = response.body();
                 Collections.sort(listdata);

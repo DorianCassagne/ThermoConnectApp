@@ -44,9 +44,11 @@
             android:theme="@style/Theme.ThermoConnectApp.NoActionBar" />
         <activity
             android:name=".FileActivity"
+            android:label="@string/title_activity_file"
             android:theme="@style/Theme.ThermoConnectApp.NoActionBar" />
         <activity
             android:name=".AlimentationActivity"
+            android:label="@string/title_activity_alimentation"
             android:theme="@style/Theme.ThermoConnectApp.NoActionBar" />
     </application><!--            android:label="@string/title_activity_terra_list"-->
 
