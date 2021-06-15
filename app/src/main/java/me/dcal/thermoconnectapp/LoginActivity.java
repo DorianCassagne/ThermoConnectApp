@@ -44,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        API.launchShortToast(getApplicationContext(),"resume");
         if(API.getBodyConnexion(getApplicationContext())!=null){
             Intent intent = new Intent(getApplicationContext(), TerraListActivity.class);
             startActivity(intent);

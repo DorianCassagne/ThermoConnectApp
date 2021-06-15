@@ -10,7 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:isScrollContainer="true"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Erreur de communication avec la base"
+            android:textAlignment="center"
+            android:visibility="gone"
+            android:textColor="@color/red"
+            android:id="@+id/erreurMessage"/>
 
         <ListView
             android:id="@+id/TerraList"
@@ -18,6 +27,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="1dp" />
+
+
     </LinearLayout>
 
 

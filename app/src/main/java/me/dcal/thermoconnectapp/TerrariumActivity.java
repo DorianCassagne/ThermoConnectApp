@@ -91,6 +91,7 @@ public class TerrariumActivity extends AppCompatActivity {
     private BodyTerrariumData lastdata;
     private TextView updateTemperature;
     private TextView updateHumidite;
+    private TextView errorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +101,8 @@ public class TerrariumActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
-        Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
-        toast.show();
+        // toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
+        //toast.show();
 
         //Init
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
@@ -129,6 +130,7 @@ public class TerrariumActivity extends AppCompatActivity {
         textGraphTemperature = (TextView)findViewById(R.id.textGraphTemperature);
         updateTemperature = (TextView)findViewById(R.id.updateTemperature);
         updateHumidite = (TextView)findViewById(R.id.updateHumidite);
+        errorMessage = (TextView)findViewById(R.id.erreurMessage);
 
         //Setup Value
         TitleTerrariumEdit.setText(bt.getNameTerrarium());
@@ -151,6 +153,7 @@ public class TerrariumActivity extends AppCompatActivity {
         heureMinTerrarium.setText(bt.getStartLightTime());
         heureMaxTerrarium.setText(bt.getStopLightTime());
         bt.setBodyConnexion(body);
+        chart.getDescription().setEnabled(false);
 
         //On resume et liste
         generationAffichage();
@@ -277,7 +280,6 @@ public class TerrariumActivity extends AppCompatActivity {
     }
 
     public void clickTimeMin(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
         TitleTerrarium.setVisibility(View.VISIBLE);
         TitleTerrariumEdit.setVisibility(View.GONE);
         TitleTerrarium.setText(TitleTerrariumEdit.getText().toString());
@@ -308,7 +310,6 @@ public class TerrariumActivity extends AppCompatActivity {
     }
 
     public void clickTimeMax(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
         TitleTerrarium.setVisibility(View.VISIBLE);
         TitleTerrariumEdit.setVisibility(View.GONE);
         TitleTerrarium.setText(TitleTerrariumEdit.getText().toString());
@@ -360,12 +361,13 @@ public class TerrariumActivity extends AppCompatActivity {
         retour.enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                System.out.println("OK");
+                API.launchShortToast(getApplicationContext(), "Modification faite!");
+                errorMessage.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable t) {
-                System.out.println("KO");
+                errorMessage.setVisibility(View.VISIBLE);
             }
         });
 
@@ -383,16 +385,17 @@ public class TerrariumActivity extends AppCompatActivity {
                         retour.enqueue(new Callback<Integer>() {
                             @Override
                             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                System.out.println("OK");
+                                API.launchShortToast(getApplicationContext(), "Suppression faite!");
+                                finish();
+                                errorMessage.setVisibility(View.GONE);
                             }
 
                             @Override
                             public void onFailure(Call<Integer> call, Throwable t) {
                                 updateInfoVue(v);
-                                System.out.println("KO");
+                                errorMessage.setVisibility(View.VISIBLE);
                             }
                         });
-                        finish();
                     }
                 })
                 .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {//R.string.cancel
@@ -418,6 +421,7 @@ public class TerrariumActivity extends AppCompatActivity {
         Call<List<BodyAnimal>> list = API.getInstance().simpleService.listAnimal(bt);
         ListView AnimalList = (ListView)findViewById(R.id.AnimalList);
         ArrayAdapter<BodyAnimal> arrayAdapter = new ArrayAdapter<BodyAnimal>(this, android.R.layout.simple_list_item_1);
+
         AnimalList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -445,9 +449,7 @@ public class TerrariumActivity extends AppCompatActivity {
                     }else if (arrayAdapter.getCount()==0){
                         AnimalList.setVisibility(View.GONE);
                     }
-
-
-
+                    errorMessage.setVisibility(View.GONE);
                     AnimalList.setAdapter(arrayAdapter);
                 }
 
@@ -455,7 +457,7 @@ public class TerrariumActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<BodyAnimal>> call, Throwable t) {
-                API.launchShortToast(getApplicationContext(), "KO");
+                errorMessage.setVisibility(View.VISIBLE);
             }
         });
 
@@ -463,6 +465,7 @@ public class TerrariumActivity extends AppCompatActivity {
         info.enqueue(new Callback<BodyTerrariumData>() {
             @Override
             public void onResponse(Call<BodyTerrariumData> call, Response<BodyTerrariumData> response) {
+                errorMessage.setVisibility(View.GONE);
                 lastdata = response.body();
                 textGraphHumidite.setText("Humidité: " + lastdata.getHumidity().toString() + "%");
                 textGraphTemperature.setText("Temperature: " + lastdata.getTemperature().toString() + "°C");
@@ -470,19 +473,20 @@ public class TerrariumActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<BodyTerrariumData> call, Throwable t) {
-
+                errorMessage.setVisibility(View.VISIBLE);
             }
         });
 
         XAxis xAxisHumidite = chart.getXAxis();
         xAxisHumidite.setDrawGridLines(true);
-        //xAxisHumidite.setGranularity(0.01f);
+        xAxisHumidite.setGranularity(1);
+        xAxisHumidite.setGranularityEnabled(true);
         xAxisHumidite.setAvoidFirstLastClipping(true);
         xAxisHumidite.setValueFormatter(new ValueFormatter(){
             private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
             @Override
             public String getFormattedValue(float value) {
-                long millis = TimeUnit.SECONDS.toMillis((long) value);
+                long millis = TimeUnit.MINUTES.toMillis((long) value);
                 return mFormat.format(new Date(millis));
             }
         });
@@ -501,7 +505,7 @@ public class TerrariumActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<BodyTerrariumData>> call, Response<List<BodyTerrariumData>> response) {
                         for(BodyTerrariumData bd : response.body()){
-                            long now = TimeUnit.MILLISECONDS.toSeconds(timestampToFloat(Timestamp.valueOf(bd.getDate())));
+                            long now = TimeUnit.MILLISECONDS.toMinutes(timestampToFloat(Timestamp.valueOf(bd.getDate())));
                             dataGraphTemperature.add(new Entry(now, Float.parseFloat(bd.getTemperature().toString())));
                             dataGraphHumidite.add(new Entry(now, Float.parseFloat(bd.getHumidity().toString())));
                         }
@@ -515,50 +519,22 @@ public class TerrariumActivity extends AppCompatActivity {
                         LineData dataHumidite = new LineData(datasetHumidite, dataSetTemperature);
                         chart.setData(dataHumidite);
                         chart.animateXY(0, 0);
+                        errorMessage.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onFailure(Call<List<BodyTerrariumData>> call, Throwable t) {
-                        API.launchShortToast(getApplicationContext(), "KO");
+                        errorMessage.setVisibility(View.VISIBLE);
                     }
                 });
             }
         };
-        final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 1, 2, TimeUnit.SECONDS);
+        final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(background, 1, 60, TimeUnit.SECONDS);
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
                 beeperHandle.cancel(true);
             }
         }, 10 * 10, TimeUnit.DAYS);
-    }
-
-    public void afficherGraphTerra(View view) {
-        //Cacher information et afficher graph
-        infoView.setVisibility(View.GONE);
-        graphView.setVisibility(View.VISIBLE);
-
-        //Modifier bouton
-        infoButton.setBackgroundResource(R.color.vert);
-        imageInfoButton.setImageResource(R.drawable.info_blanc);
-        textInfoButton.setTextColor(Color.WHITE);
-
-        graphButton.setBackgroundColor(Color.TRANSPARENT);
-        imageGraphButton.setImageResource(R.drawable.graph_vert);
-        textGraphButton.setTextColor(Color.rgb(75, 237, 145));
-    }
-
-    public void afficherInfoTerra(View view) {
-        infoView.setVisibility(View.VISIBLE);
-        graphView.setVisibility(View.GONE);
-
-        //Modifier bouton
-        graphButton.setBackgroundResource(R.color.vert);
-        imageGraphButton.setImageResource(R.drawable.graph_blanc);
-        textGraphButton.setTextColor(Color.WHITE);
-
-        infoButton.setBackgroundColor(Color.TRANSPARENT);
-        imageInfoButton.setImageResource(R.drawable.info_vert);
-        textInfoButton.setTextColor(Color.rgb(75, 237, 145));
     }
 }
