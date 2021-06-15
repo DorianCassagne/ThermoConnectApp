@@ -101,8 +101,8 @@ public class TerrariumActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
-        Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
-        toast.show();
+        // toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
+        //toast.show();
 
         //Init
         TitleTerrarium = (TextView)findViewById(R.id.TitleTerrarium);
@@ -538,34 +538,5 @@ public class TerrariumActivity extends AppCompatActivity {
                 beeperHandle.cancel(true);
             }
         }, 10 * 10, TimeUnit.DAYS);
-    }
-
-    public void afficherGraphTerra(View view) {
-        //Cacher information et afficher graph
-        infoView.setVisibility(View.GONE);
-        graphView.setVisibility(View.VISIBLE);
-
-        //Modifier bouton
-        infoButton.setBackgroundResource(R.color.vert);
-        imageInfoButton.setImageResource(R.drawable.info_blanc);
-        textInfoButton.setTextColor(Color.WHITE);
-
-        graphButton.setBackgroundColor(Color.TRANSPARENT);
-        imageGraphButton.setImageResource(R.drawable.graph_vert);
-        textGraphButton.setTextColor(Color.rgb(75, 237, 145));
-    }
-
-    public void afficherInfoTerra(View view) {
-        infoView.setVisibility(View.VISIBLE);
-        graphView.setVisibility(View.GONE);
-
-        //Modifier bouton
-        graphButton.setBackgroundResource(R.color.vert);
-        imageGraphButton.setImageResource(R.drawable.graph_blanc);
-        textGraphButton.setTextColor(Color.WHITE);
-
-        infoButton.setBackgroundColor(Color.TRANSPARENT);
-        imageInfoButton.setImageResource(R.drawable.info_vert);
-        textInfoButton.setTextColor(Color.rgb(75, 237, 145));
     }
 }
