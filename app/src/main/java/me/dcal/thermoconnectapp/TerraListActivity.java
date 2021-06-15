@@ -42,8 +42,8 @@ public class TerraListActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         BodyConnexion body=API.getBodyConnexion(getApplicationContext());
-        Toast toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
-        toast.show();
+        // toast = Toast.makeText(getApplicationContext(), body.login , Toast.LENGTH_LONG);
+        //toast.show();
         errorMessage = (TextView)findViewById(R.id.erreurMessage);
         generationPage();
 
