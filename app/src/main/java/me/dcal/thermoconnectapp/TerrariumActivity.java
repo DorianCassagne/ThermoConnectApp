@@ -280,7 +280,6 @@ public class TerrariumActivity extends AppCompatActivity {
     }
 
     public void clickTimeMin(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
         TitleTerrarium.setVisibility(View.VISIBLE);
         TitleTerrariumEdit.setVisibility(View.GONE);
         TitleTerrarium.setText(TitleTerrariumEdit.getText().toString());
@@ -311,7 +310,6 @@ public class TerrariumActivity extends AppCompatActivity {
     }
 
     public void clickTimeMax(View v){
-        API.launchShortToast(getApplicationContext(),"onClick");
         TitleTerrarium.setVisibility(View.VISIBLE);
         TitleTerrariumEdit.setVisibility(View.GONE);
         TitleTerrarium.setText(TitleTerrariumEdit.getText().toString());

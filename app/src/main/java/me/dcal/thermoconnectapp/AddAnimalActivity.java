@@ -186,13 +186,15 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                         sex = null;
                     }
 
+                    String datenais = ((TextView) findViewById(R.id.naissance)).getText().toString();
+
 //((TextView) findViewById(R.id.naissance)).getText().toString()
                     bodyAnimal = new BodyAnimal(API.getBodyConnexion(getApplicationContext())
                             , idterra
                             , (BodySpecies) speciesspinner.getSelectedItem()
                             , name.getText().toString()
                             , sex
-                            , ((TextView) findViewById(R.id.naissance)).getText().toString()
+                            , datenais
                             , commentaire.getText().toString()
                             , null
                             , 0
@@ -252,7 +254,6 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
         }
 
         public void changedate(View v){
-            API.launchShortToast(getApplicationContext(),"onClick");
             int mYear, mMonth, mDay, mHour, mMinute;
             final Calendar c = Calendar.getInstance();
             mYear = c.get(Calendar.YEAR);
@@ -263,7 +264,8 @@ public class AddAnimalActivity extends AppCompatActivity implements ActivityComp
                     new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                            String date = dayOfMonth + "/" + month + "/" + year;
+
+                            String date =  year+"-" + ((month < 9) ? "0"+month : month )+ "-"+((dayOfMonth < 9) ? "0"+dayOfMonth : dayOfMonth+"" ) ;
                             naissance.setText(date);
                         }
                     }, mYear, mMonth, mDay);

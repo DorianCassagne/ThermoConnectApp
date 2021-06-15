@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:text="Erreur de communication avec la base"
             android:textAlignment="center"
+            android:visibility="gone"
             android:textColor="@color/red"
             android:id="@+id/erreurMessage"/>
 
