@@ -573,6 +573,7 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
             startActivityForResult(i, RESULT_LOAD_IMAGE);
         }else{
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
             try{
@@ -617,16 +618,21 @@ public class AnimalActivity extends AppCompatActivity implements ActivityCompat.
                 reponse.enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if (response.body()>=0){
-                            API.launchShortToast(getApplicationContext(), "Document ajouté");
-                        }else{
+                        try{
+                            if (response.body()>=0){
+                                API.launchShortToast(getApplicationContext(), "Document ajouté");
+                            }else{
+                                API.launchShortToast(getApplicationContext(), "Erreur lors de l'envoi du document au serveur");
+                            }
+                        }catch (Exception e){
                             API.launchShortToast(getApplicationContext(), "Erreur lors de l'envoi du document au serveur");
                         }
+
                     }
 
                     @Override
                     public void onFailure(Call<Integer> call, Throwable t) {
-                        API.launchShortToast(getApplicationContext(), "Une erreur est survenue veillez réessayer plus tard");
+                        API.launchShortToast(getApplicationContext(), "Une erreur est survenue veuillez réessayer plus tard");
                     }
                 });
 

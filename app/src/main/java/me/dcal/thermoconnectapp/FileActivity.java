@@ -182,8 +182,7 @@ public class FileActivity extends AppCompatActivity  implements Serializable {
         reponse.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast toast = Toast.makeText(getApplicationContext(), "OK", Toast.LENGTH_SHORT);
-                toast.show();
+
                 try {
                     data = response.body().byteStream();
 
@@ -254,8 +253,7 @@ public class FileActivity extends AppCompatActivity  implements Serializable {
 
                 }
                 catch (Exception ex){
-                    Toast toasts = Toast.makeText(getApplicationContext(), "KO", Toast.LENGTH_SHORT);
-                    toast.show();
+
                 }
             }
 
